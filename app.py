@@ -13,95 +13,105 @@ BASE_DIR = Path(__file__).parent
 CONFIG_PATH = BASE_DIR / "config.json"
 MESSAGES_PATH = BASE_DIR / "messages.json"
 
-# (background gradient start, end, accent colour) for each message card.
-CARD_STYLES = [
-    ("#FF9A9E", "#FAD0C4", "#C2185B"),
-    ("#A18CD1", "#FBC2EB", "#5E35B1"),
-    ("#84FAB0", "#8FD3F4", "#00695C"),
-    ("#FDCB6E", "#FF7675", "#BF360C"),
-    ("#74EBD5", "#9FACE6", "#1A237E"),
-    ("#F6D365", "#FDA085", "#E65100"),
-]
+CARD_ACCENTS = ["#805A36", "#745334", "#657044", "#8A5738", "#62573A", "#7A4F3A"]
 CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
 
 PAGE_CSS = """
 <style>
 .stApp {
-    background: linear-gradient(135deg, #FFF1EB 0%, #E8F4FF 35%, #F6E8FF 70%, #FFF9DB 100%);
+    background-color: #E8D8B8;
+    background-image:
+        radial-gradient(ellipse at 18% 12%, rgba(255, 249, 226, 0.72), transparent 55%),
+        repeating-linear-gradient(0deg, rgba(94, 65, 34, 0.035) 0, rgba(94, 65, 34, 0.035) 1px, transparent 1px, transparent 5px),
+        linear-gradient(135deg, #F0E3C8, #DCC49D);
+    color: #463722;
 }
 .hero-title {
     text-align: center;
     font-size: 3.2rem;
     font-weight: 800;
     margin: 0.5rem 0 0.2rem 0;
-    background: linear-gradient(90deg, #FF4D8D, #FF9A3C, #F9D423, #37D67A, #2CB5E8, #8E54E9);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shine 6s linear infinite;
+    color: #4F3923;
+    font-family: Georgia, "Times New Roman", serif;
 }
 .hero-subtitle {
     text-align: center;
     font-size: 1.3rem;
-    color: #5C4B8A;
+    color: #70573A;
     margin-bottom: 1.5rem;
 }
 .intro-box {
-    background: rgba(255, 255, 255, 0.75);
-    border-left: 8px solid #FF4D8D;
-    border-radius: 16px;
+    background: linear-gradient(135deg, #F8EED8, #E9D7B5);
+    border-left: 6px solid #A0784D;
+    border-radius: 6px;
     padding: 1rem 1.4rem;
     font-size: 1.1rem;
-    color: #2B2B2B;
+    color: #463722;
     margin: 1rem 0 1.5rem 0;
+    box-shadow: inset 0 0 22px rgba(114, 81, 43, 0.08);
 }
 .section-title {
     text-align: center;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #8E24AA;
+    color: #62472B;
     margin: 1.5rem 0 1rem 0;
+    font-family: Georgia, "Times New Roman", serif;
 }
 .envelope-panel {
     text-align: center;
-    background: rgba(255, 255, 255, 0.78);
-    border: 2px solid #E8A76A;
-    border-radius: 16px;
+    background: rgba(248, 238, 216, 0.82);
+    border: 1px solid #B49368;
+    border-radius: 6px;
     padding: 1rem 1.2rem;
     margin: 1rem 0;
-    box-shadow: 0 5px 16px rgba(90, 55, 30, 0.12);
+    box-shadow: inset 0 0 20px rgba(114, 81, 43, 0.08);
 }
 .envelope-icon { font-size: 2.8rem; line-height: 1.2; }
-.envelope-label { color: #68452F; font-size: 1.05rem; font-weight: 700; }
+.envelope-label { color: #684F32; font-size: 1.05rem; font-weight: 700; }
 .msg-card {
     padding: 1.3rem 1.5rem;
-    border-radius: 20px;
+    border: 1px solid #B49368;
+    border-radius: 6px;
     margin-bottom: 1.2rem;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    background-color: #F3E7CE;
+    background-image:
+        repeating-linear-gradient(0deg, rgba(94, 65, 34, 0.035) 0, rgba(94, 65, 34, 0.035) 1px, transparent 1px, transparent 5px),
+        linear-gradient(135deg, #FBF3DF, #E9D6B2);
+    box-shadow: 0 5px 14px rgba(74, 54, 29, 0.16), inset 0 0 24px rgba(114, 81, 43, 0.08);
     animation: pop 0.6s ease both;
 }
-.msg-text { font-size: 1.1rem; line-height: 1.65; color: #2B2B2B; }
+.msg-text { font-size: 1.1rem; line-height: 1.65; color: #463722; }
 .msg-author { margin-top: 0.9rem; font-weight: 700; text-align: right; font-size: 1.05rem; }
 .closing {
     text-align: center;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #E91E63;
+    color: #705136;
     margin: 1.5rem 0;
+    font-family: Georgia, "Times New Roman", serif;
 }
 div.stButton > button {
-    border-radius: 999px;
+    border-radius: 4px;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1rem;
     padding: 0.6rem 1.2rem;
-    border: none;
-    color: white;
-    background: linear-gradient(90deg, #FF4D8D, #FF9A3C);
-    box-shadow: 0 4px 14px rgba(255, 77, 141, 0.45);
+    border: 1px solid #9B774E;
+    color: #4E3923;
+    background: linear-gradient(180deg, #F8EED8, #E6D1AA);
+    box-shadow: 0 3px 8px rgba(74, 54, 29, 0.16);
 }
-div.stButton > button:hover { color: white; transform: scale(1.04); }
-@keyframes shine { to { background-position: 200% center; } }
+div[class*="st-key-open_message_"] button {
+    min-height: 104px;
+    border-color: #9B7448;
+    background:
+        linear-gradient(147deg, transparent 49%, rgba(126, 83, 42, 0.32) 50%, transparent 51%) left bottom / 50% 62% no-repeat,
+        linear-gradient(213deg, transparent 49%, rgba(126, 83, 42, 0.32) 50%, transparent 51%) right bottom / 50% 62% no-repeat,
+        linear-gradient(180deg, #FBF2DF, #E6D0A8);
+    box-shadow: 0 4px 10px rgba(74, 54, 29, 0.2), inset 0 0 14px rgba(114, 81, 43, 0.08);
+    font-family: Georgia, "Times New Roman", serif;
+}
+div.stButton > button:hover { color: #352516; border-color: #765432; transform: translateY(-2px); }
 @keyframes pop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 </style>
 """
@@ -138,12 +148,12 @@ def render_card(author: str, message: str, index: int) -> None:
     index : int
         Position of the message, used to pick the card colours and emoji.
     """
-    start, end, accent = CARD_STYLES[index % len(CARD_STYLES)]
+    accent = CARD_ACCENTS[index % len(CARD_ACCENTS)]
     emoji = CARD_EMOJIS[index % len(CARD_EMOJIS)]
     safe_message = html.escape(message).replace("\n", "<br>")
     st.markdown(
         f"""
-        <div class="msg-card" style="background:linear-gradient(135deg,{start},{end});animation-delay:{index * 0.1}s;">
+        <div class="msg-card" style="animation-delay:{index * 0.1}s;">
             <div class="msg-text">{safe_message}</div>
             <div class="msg-author" style="color:{accent};">{emoji} {html.escape(author)}</div>
         </div>
