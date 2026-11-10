@@ -7,6 +7,7 @@ from typing import Any
 
 import streamlit as st
 
+from cath_message import CATH_MESSAGE
 from pdf_builder import build_pdf
 
 BASE_DIR = Path(__file__).parent
@@ -174,6 +175,7 @@ def main() -> None:
     config = load_json(CONFIG_PATH)
     config["title"] = config["title"].replace("[Supervisor's Name]", "Stal")
     messages = load_json(MESSAGES_PATH)
+    messages.append(CATH_MESSAGE)
 
     st.markdown(PAGE_CSS, unsafe_allow_html=True)
     st.markdown(f"<div class='hero-title'>🎉 {html.escape(config['title'])} 🎉</div>", unsafe_allow_html=True)
