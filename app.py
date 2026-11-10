@@ -13,6 +13,7 @@ from pdf_builder import build_pdf
 BASE_DIR = Path(__file__).parent
 CONFIG_PATH = BASE_DIR / "config.json"
 MESSAGES_PATH = BASE_DIR / "messages.json"
+AUDIO_PATH = BASE_DIR / "salamat.mp3"
 
 CARD_ACCENTS = ["#805A36", "#745334", "#657044", "#8A5738", "#62573A", "#7A4F3A"]
 CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
@@ -178,6 +179,7 @@ def main() -> None:
     messages.append(CATH_MESSAGE)
 
     st.markdown(PAGE_CSS, unsafe_allow_html=True)
+    st.audio(str(AUDIO_PATH), format="audio/mp3", autoplay=True, loop=True)
     st.markdown(f"<div class='hero-title'>🎉 {html.escape(config['title'])} 🎉</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='hero-subtitle'>{html.escape(config['subtitle'])}</div>", unsafe_allow_html=True)
 
