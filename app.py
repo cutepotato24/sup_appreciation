@@ -162,6 +162,14 @@ def render_card(author: str, message: str, index: int) -> None:
     )
 
 
+@st.dialog("A message for Stal")
+def show_message_dialog(author: str, message: str, index: int) -> None:
+    render_card(author, message, index)
+    if st.button("Close message", key=f"close_message_{index}", use_container_width=True):
+        st.session_state.selected_message = None
+        st.rerun()
+
+
 def main() -> None:
     """Run the app."""
     config = load_json(CONFIG_PATH)
@@ -213,10 +221,7 @@ def main() -> None:
     selected_message = st.session_state.selected_message
     if selected_message is not None and 0 <= selected_message < len(messages):
         item = messages[selected_message]
-        render_card(item["name"], item["message"], selected_message)
-        if st.button("↩️ Back to the envelopes", key="close_message", use_container_width=True):
-            st.session_state.selected_message = None
-            st.rerun()
+        show_message_dialog(item["name"], item["message"], selected_message)
 
     st.markdown(f"<div class='closing'>{html.escape(config['closing'])}</div>", unsafe_allow_html=True)
     _, middle, _ = st.columns([1, 2, 1])
