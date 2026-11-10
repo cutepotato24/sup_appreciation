@@ -155,11 +155,11 @@ def render_card(author: str, message: str, index: int) -> None:
 def main() -> None:
     """Run the app."""
     config = load_json(CONFIG_PATH)
+    config["title"] = config["title"].replace("[Supervisor's Name]", "Stal")
     messages = load_json(MESSAGES_PATH)
 
     st.markdown(PAGE_CSS, unsafe_allow_html=True)
-    title = config["title"].replace("[Supervisor's Name]", "Stal")
-    st.markdown(f"<div class='hero-title'>🎉 {html.escape(title)} 🎉</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='hero-title'>🎉 {html.escape(config['title'])} 🎉</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='hero-subtitle'>{html.escape(config['subtitle'])}</div>", unsafe_allow_html=True)
 
     if "opened" not in st.session_state:
