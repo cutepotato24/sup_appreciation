@@ -63,6 +63,17 @@ PAGE_CSS = """
     color: #8E24AA;
     margin: 1.5rem 0 1rem 0;
 }
+.envelope-panel {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.78);
+    border: 2px solid #E8A76A;
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    box-shadow: 0 5px 16px rgba(90, 55, 30, 0.12);
+}
+.envelope-icon { font-size: 2.8rem; line-height: 1.2; }
+.envelope-label { color: #68452F; font-size: 1.05rem; font-weight: 700; }
 .msg-card {
     padding: 1.3rem 1.5rem;
     border-radius: 20px;
@@ -147,11 +158,14 @@ def main() -> None:
     messages = load_json(MESSAGES_PATH)
 
     st.markdown(PAGE_CSS, unsafe_allow_html=True)
-    st.markdown(f"<div class='hero-title'>🎉 {html.escape(config['title'])} 🎉</div>", unsafe_allow_html=True)
+    title = config["title"].replace("[Supervisor's Name]", "Stal")
+    st.markdown(f"<div class='hero-title'>🎉 {html.escape(title)} 🎉</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='hero-subtitle'>{html.escape(config['subtitle'])}</div>", unsafe_allow_html=True)
 
     if "opened" not in st.session_state:
         st.session_state.opened = False
+    if "selected_message" not in st.session_state:
+        st.session_state.selected_message = None
 
     if not st.session_state.opened:
         _, middle, _ = st.columns([1, 2, 1])
@@ -168,8 +182,31 @@ def main() -> None:
         st.image(str(BASE_DIR / photo), use_container_width=True)
 
     st.markdown(f"<div class='section-title'>💌 Messages from the team ({len(messages)})</div>", unsafe_allow_html=True)
-    for index, item in enumerate(messages):
-        render_card(item["name"], item["message"], index)
+    st.markdown(
+        "<div class='envelope-panel'><div class='envelope-icon'>✉️</div>"
+        "<div class='envelope-label'>Choose an envelope to open</div></div>",
+        unsafe_allow_html=True,
+    )
+    for row_start in range(0, len(messages), 2):
+        columns = st.columns(2)
+        for column, index in zip(columns, range(row_start, min(row_start + 2, len(messages)))):
+            item = messages[index]
+            with column:
+                if st.button(
+                    f"✉️ Open {item['name']}'s message",
+                    key=f"open_message_{index}",
+                    use_container_width=True,
+                ):
+                    st.session_state.selected_message = index
+                    st.rerun()
+
+    selected_message = st.session_state.selected_message
+    if selected_message is not None and 0 <= selected_message < len(messages):
+        item = messages[selected_message]
+        render_card(item["name"], item["message"], selected_message)
+        if st.button("↩️ Back to the envelopes", key="close_message", use_container_width=True):
+            st.session_state.selected_message = None
+            st.rerun()
 
     st.markdown(f"<div class='closing'>{html.escape(config['closing'])}</div>", unsafe_allow_html=True)
     _, middle, _ = st.columns([1, 2, 1])
