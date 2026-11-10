@@ -19,11 +19,10 @@ CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
 PAGE_CSS = """
 <style>
 .stApp {
-    background-color: #E8D8B8;
+    background-color: #FFF4D8;
     background-image:
-        radial-gradient(ellipse at 18% 12%, rgba(255, 249, 226, 0.72), transparent 55%),
-        repeating-linear-gradient(0deg, rgba(94, 65, 34, 0.035) 0, rgba(94, 65, 34, 0.035) 1px, transparent 1px, transparent 5px),
-        linear-gradient(135deg, #F0E3C8, #DCC49D);
+        repeating-linear-gradient(135deg, rgba(255, 111, 97, 0.09) 0, rgba(255, 111, 97, 0.09) 2px, transparent 2px, transparent 34px),
+        linear-gradient(125deg, #FFF1CB 0%, #F9DDE0 34%, #DDF0F2 68%, #E0EFD8 100%);
     color: #463722;
 }
 .hero-title {
