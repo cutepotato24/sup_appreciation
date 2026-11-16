@@ -90,7 +90,8 @@ PAGE_CSS = """
     outline: 1px solid rgba(181, 129, 130, 0.2);
     outline-offset: -6px;
     box-shadow: 0 5px 14px rgba(104, 65, 72, 0.16);
-    animation: pop 0.6s ease both;
+    min-height: 340px;
+    animation: pageTurn 0.45s ease both;
 }
 .photo-tape {
     position: absolute;
@@ -106,6 +107,18 @@ PAGE_CSS = """
 }
 .msg-text { font-size: 1.1rem; line-height: 1.65; color: #50383D; font-style: italic; }
 .msg-author { margin-top: 0.9rem; font-weight: 700; text-align: right; font-size: 1.05rem; }
+.page-number {
+    margin-top: 1.4rem;
+    color: #A0757A;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-align: center;
+}
+.book-counter {
+    text-align: center;
+    color: #89515B;
+    margin: -0.5rem 0 1rem;
+}
 .closing {
     text-align: center;
     font-size: 1.8rem;
@@ -124,7 +137,10 @@ div.stButton > button {
     box-shadow: 0 3px 8px rgba(104, 65, 72, 0.16);
 }
 div.stButton > button:hover { color: #50383D; border-color: #89515B; transform: translateY(-2px); }
-@keyframes pop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+@keyframes pageTurn {
+    from { opacity: 0; transform: perspective(900px) rotateY(-10deg) translateX(10px); }
+    to { opacity: 1; transform: perspective(900px) rotateY(0) translateX(0); }
+}
 </style>
 """
 
@@ -170,6 +186,7 @@ def render_card(author: str, message: str, index: int) -> None:
             <div class="photo-tape" style="transform: rotate({tape_rotation}deg);"></div>
             <div class="msg-text">{safe_message}</div>
             <div class="msg-author" style="color:{accent};">{emoji} {html.escape(author)}</div>
+            <div class="page-number">Page {index + 1}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -189,6 +206,8 @@ def main() -> None:
 
     if "opened" not in st.session_state:
         st.session_state.opened = False
+    if "current_spread" not in st.session_state:
+        st.session_state.current_spread = 0
     if not st.session_state.opened:
         _, middle, _ = st.columns([1, 2, 1])
         if middle.button("🎁 Open your surprise", use_container_width=True):
@@ -204,11 +223,40 @@ def main() -> None:
     if photo and (BASE_DIR / photo).exists():
         st.image(str(BASE_DIR / photo), use_container_width=True)
 
-    st.markdown(f"<div class='section-title'>💌 Messages from the team ({len(messages)})</div>", unsafe_allow_html=True)
-    for index, item in enumerate(messages):
-        render_card(item["name"], item["message"], index)
+    pages_per_spread = 2
+    total_spreads = (len(messages) + pages_per_spread - 1) // pages_per_spread
+    current_spread = st.session_state.current_spread
+    first_page = current_spread * pages_per_spread
+    last_page = min(first_page + pages_per_spread, len(messages))
+    st.markdown("<div class='section-title'>📖 Messages from the team</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='book-counter'>Spread {current_spread + 1} of {total_spreads}"
+        f" · Pages {first_page + 1}–{last_page} of {len(messages)}</div>",
+        unsafe_allow_html=True,
+    )
+    page_columns = st.columns(pages_per_spread, gap="large")
+    for column, index in zip(page_columns, range(first_page, last_page)):
+        with column:
+            item = messages[index]
+            render_card(item["name"], item["message"], index)
 
-    st.markdown(f"<div class='closing'>{html.escape(config['closing'])}</div>", unsafe_allow_html=True)
+    previous_column, next_column = st.columns(2, gap="large")
+    with previous_column:
+        if st.button("← Previous 2 pages", disabled=current_spread == 0, use_container_width=True):
+            st.session_state.current_spread -= 1
+            st.rerun()
+    with next_column:
+        if st.button(
+            "Next 2 pages →",
+            disabled=current_spread >= total_spreads - 1,
+            use_container_width=True,
+        ):
+            st.session_state.current_spread += 1
+            st.rerun()
+
+    if current_spread == total_spreads - 1:
+        st.markdown(f"<div class='closing'>{html.escape(config['closing'])}</div>", unsafe_allow_html=True)
+
     _, middle, _ = st.columns([1, 2, 1])
     middle.download_button(
         "📄 Download your messages (PDF)",
