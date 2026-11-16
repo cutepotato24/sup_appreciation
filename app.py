@@ -15,80 +15,69 @@ CONFIG_PATH = BASE_DIR / "config.json"
 MESSAGES_PATH = BASE_DIR / "messages.json"
 AUDIO_PATH = BASE_DIR / "salamat.mp3"
 
-CARD_ACCENTS = ["#805A36", "#745334", "#657044", "#8A5738", "#62573A", "#7A4F3A"]
+CARD_ACCENTS = ["#9F1239", "#BE123C", "#881337", "#B4233C", "#A61B3B", "#7F1D35"]
 CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
 
 PAGE_CSS = """
 <style>
 .stApp {
-    background-color: #FFF4D8;
+    background-color: #FFF1F2;
     background-image:
-        repeating-linear-gradient(135deg, rgba(255, 111, 97, 0.09) 0, rgba(255, 111, 97, 0.09) 2px, transparent 2px, transparent 34px),
-        linear-gradient(125deg, #FFF1CB 0%, #F9DDE0 34%, #DDF0F2 68%, #E0EFD8 100%);
-    color: #463722;
+        repeating-linear-gradient(135deg, rgba(190, 18, 60, 0.06) 0, rgba(190, 18, 60, 0.06) 2px, transparent 2px, transparent 34px),
+        linear-gradient(125deg, #FFF1F2 0%, #FFE4E6 48%, #FCE7F3 100%);
+    color: #4C1D25;
 }
 .hero-title {
     text-align: center;
     font-size: 3.2rem;
     font-weight: 800;
     margin: 0.5rem 0 0.2rem 0;
-    color: #4F3923;
+    color: #7F1D35;
     font-family: Georgia, "Times New Roman", serif;
 }
 .hero-subtitle {
     text-align: center;
     font-size: 1.3rem;
-    color: #70573A;
+    color: #9F3048;
     margin-bottom: 1.5rem;
 }
 .intro-box {
-    background: linear-gradient(135deg, #F8EED8, #E9D7B5);
-    border-left: 6px solid #A0784D;
+    background: linear-gradient(135deg, #FFF1F2, #FCE4E7);
+    border-left: 6px solid #BE123C;
     border-radius: 6px;
     padding: 1rem 1.4rem;
     font-size: 1.1rem;
-    color: #463722;
+    color: #5B1F2A;
     margin: 1rem 0 1.5rem 0;
-    box-shadow: inset 0 0 22px rgba(114, 81, 43, 0.08);
+    box-shadow: inset 0 0 22px rgba(159, 18, 57, 0.06);
 }
 .section-title {
     text-align: center;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #62472B;
+    color: #9F1239;
     margin: 1.5rem 0 1rem 0;
     font-family: Georgia, "Times New Roman", serif;
 }
-.envelope-panel {
-    text-align: center;
-    background: rgba(248, 238, 216, 0.82);
-    border: 1px solid #B49368;
-    border-radius: 6px;
-    padding: 1rem 1.2rem;
-    margin: 1rem 0;
-    box-shadow: inset 0 0 20px rgba(114, 81, 43, 0.08);
-}
-.envelope-icon { font-size: 2.8rem; line-height: 1.2; }
-.envelope-label { color: #684F32; font-size: 1.05rem; font-weight: 700; }
 .msg-card {
     padding: 1.3rem 1.5rem;
-    border: 1px solid #B49368;
+    border: 1px solid #F3B9C4;
     border-radius: 6px;
     margin-bottom: 1.2rem;
-    background-color: #F3E7CE;
+    background-color: #FFF7F7;
     background-image:
-        repeating-linear-gradient(0deg, rgba(94, 65, 34, 0.035) 0, rgba(94, 65, 34, 0.035) 1px, transparent 1px, transparent 5px),
-        linear-gradient(135deg, #FBF3DF, #E9D6B2);
-    box-shadow: 0 5px 14px rgba(74, 54, 29, 0.16), inset 0 0 24px rgba(114, 81, 43, 0.08);
+        repeating-linear-gradient(0deg, rgba(159, 18, 57, 0.025) 0, rgba(159, 18, 57, 0.025) 1px, transparent 1px, transparent 5px),
+        linear-gradient(135deg, #FFF8F8, #FCE7EB);
+    box-shadow: 0 5px 14px rgba(127, 29, 53, 0.12), inset 0 0 24px rgba(159, 18, 57, 0.04);
     animation: pop 0.6s ease both;
 }
-.msg-text { font-size: 1.1rem; line-height: 1.65; color: #463722; }
+.msg-text { font-size: 1.1rem; line-height: 1.65; color: #4C1D25; }
 .msg-author { margin-top: 0.9rem; font-weight: 700; text-align: right; font-size: 1.05rem; }
 .closing {
     text-align: center;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #705136;
+    color: #9F3048;
     margin: 1.5rem 0;
     font-family: Georgia, "Times New Roman", serif;
 }
@@ -97,22 +86,12 @@ div.stButton > button {
     font-weight: 700;
     font-size: 1rem;
     padding: 0.6rem 1.2rem;
-    border: 1px solid #9B774E;
-    color: #4E3923;
-    background: linear-gradient(180deg, #F8EED8, #E6D1AA);
-    box-shadow: 0 3px 8px rgba(74, 54, 29, 0.16);
+    border: 1px solid #BE123C;
+    color: #7F1D35;
+    background: linear-gradient(180deg, #FFF1F2, #FCE4E7);
+    box-shadow: 0 3px 8px rgba(127, 29, 53, 0.12);
 }
-div[class*="st-key-open_message_"] button {
-    min-height: 104px;
-    border-color: #9B7448;
-    background:
-        linear-gradient(147deg, transparent 49%, rgba(126, 83, 42, 0.32) 50%, transparent 51%) left bottom / 50% 62% no-repeat,
-        linear-gradient(213deg, transparent 49%, rgba(126, 83, 42, 0.32) 50%, transparent 51%) right bottom / 50% 62% no-repeat,
-        linear-gradient(180deg, #FBF2DF, #E6D0A8);
-    box-shadow: 0 4px 10px rgba(74, 54, 29, 0.2), inset 0 0 14px rgba(114, 81, 43, 0.08);
-    font-family: Georgia, "Times New Roman", serif;
-}
-div.stButton > button:hover { color: #352516; border-color: #765432; transform: translateY(-2px); }
+div.stButton > button:hover { color: #5B1F2A; border-color: #881337; transform: translateY(-2px); }
 @keyframes pop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 </style>
 """
@@ -163,14 +142,6 @@ def render_card(author: str, message: str, index: int) -> None:
     )
 
 
-@st.dialog("A message for Stal")
-def show_message_dialog(author: str, message: str, index: int) -> None:
-    render_card(author, message, index)
-    if st.button("Close message", key=f"close_message_{index}", use_container_width=True):
-        st.session_state.selected_message = None
-        st.rerun()
-
-
 def main() -> None:
     """Run the app."""
     config = load_json(CONFIG_PATH)
@@ -185,9 +156,6 @@ def main() -> None:
 
     if "opened" not in st.session_state:
         st.session_state.opened = False
-    if "selected_message" not in st.session_state:
-        st.session_state.selected_message = None
-
     if not st.session_state.opened:
         _, middle, _ = st.columns([1, 2, 1])
         if middle.button("🎁 Open your surprise", use_container_width=True):
@@ -203,28 +171,8 @@ def main() -> None:
         st.image(str(BASE_DIR / photo), use_container_width=True)
 
     st.markdown(f"<div class='section-title'>💌 Messages from the team ({len(messages)})</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='envelope-panel'><div class='envelope-icon'>✉️</div>"
-        "<div class='envelope-label'>Choose an envelope to open</div></div>",
-        unsafe_allow_html=True,
-    )
-    for row_start in range(0, len(messages), 2):
-        columns = st.columns(2)
-        for column, index in zip(columns, range(row_start, min(row_start + 2, len(messages)))):
-            item = messages[index]
-            with column:
-                if st.button(
-                    f"✉️ Open {item['name']}'s message",
-                    key=f"open_message_{index}",
-                    use_container_width=True,
-                ):
-                    st.session_state.selected_message = index
-                    st.rerun()
-
-    selected_message = st.session_state.selected_message
-    if selected_message is not None and 0 <= selected_message < len(messages):
-        item = messages[selected_message]
-        show_message_dialog(item["name"], item["message"], selected_message)
+    for index, item in enumerate(messages):
+        render_card(item["name"], item["message"], index)
 
     st.markdown(f"<div class='closing'>{html.escape(config['closing'])}</div>", unsafe_allow_html=True)
     _, middle, _ = st.columns([1, 2, 1])
