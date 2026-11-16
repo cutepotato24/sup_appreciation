@@ -28,9 +28,16 @@ PAGE_CSS = """
     color: #4C1D25;
 }
 .block-container {
-    max-width: 100%;
+    max-width: 80vw;
     padding-left: 2rem;
     padding-right: 2rem;
+}
+@media (max-width: 640px) {
+    .block-container {
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
 }
 .hero-title {
     text-align: center;
