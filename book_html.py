@@ -16,7 +16,7 @@ from pathlib import Path
 
 from urllib.parse import quote
  
-CARD_ACCENTS = ["#9B5664", "#A75D68", "#7D4852", "#B06E75", "#80505A", "#986872"]
+CARD_ACCENTS = ["#8A4B3A", "#7A4A2E", "#7D4852", "#8F5A3C", "#5E4630", "#8A5560"]
 
 CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
  
@@ -50,9 +50,9 @@ def _leather_uri(seed: int, color: str) -> str:
     return "data:image/svg+xml," + quote(svg, safe="/:=,;'()")
  
  
-def _crumple_uri(seed: int, color: str, surface_scale: float, azimuth: int) -> str:
+def _aged_paper_uri(seed: int, color: str) -> str:
 
-    """Return a data-URI SVG of crumpled paper (turbulence ridges lit from one side).
+    """Return a data-URI SVG of old album paper: fine grain, brown blotches and foxing spots.
  
     Parameters
 
@@ -60,19 +60,11 @@ def _crumple_uri(seed: int, color: str, surface_scale: float, azimuth: int) -> s
 
     seed : int
 
-        Noise seed, so every page has different creases.
+        Noise seed, so every page ages differently.
 
     color : str
 
-        Paper colour used as the lighting colour.
-
-    surface_scale : float
-
-        Crease depth. Higher means a more crumpled sheet.
-
-    azimuth : int
-
-        Direction of the light in degrees.
+        Base paper colour.
  
     Returns
 
@@ -92,11 +84,27 @@ def _crumple_uri(seed: int, color: str, surface_scale: float, azimuth: int) -> s
 
         "<filter id='f' x='0' y='0' width='100%' height='100%'>"
 
-        f"<feTurbulence type='turbulence' baseFrequency='0.007 0.010' numOctaves='5' seed='{seed}' result='n'/>"
+        f"<feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='{seed}' result='fine'/>"
 
-        f"<feDiffuseLighting in='n' lighting-color='{color}' surfaceScale='{surface_scale}' diffuseConstant='1.2'>"
+        f"<feDiffuseLighting in='fine' lighting-color='{color}' surfaceScale='0.9' diffuseConstant='1.2' result='paper'>"
 
-        f"<feDistantLight azimuth='{azimuth}' elevation='58'/></feDiffuseLighting></filter>"
+        "<feDistantLight azimuth='45' elevation='60'/></feDiffuseLighting>"
+
+        f"<feTurbulence type='fractalNoise' baseFrequency='0.007 0.010' numOctaves='4' seed='{seed + 1}' result='blot'/>"
+
+        "<feColorMatrix in='blot' type='matrix' result='stain' "
+
+        "values='0 0 0 0 0.60  0 0 0 0 0.42  0 0 0 0 0.20  0 0 0 1.3 -0.52'/>"
+
+        "<feComposite in='stain' in2='paper' operator='over' result='aged'/>"
+
+        f"<feTurbulence type='fractalNoise' baseFrequency='0.11' numOctaves='2' seed='{seed + 2}' result='sp'/>"
+
+        "<feColorMatrix in='sp' type='matrix' result='fox' "
+
+        "values='0 0 0 0 0.55  0 0 0 0 0.38  0 0 0 0 0.20  0 0 0 14 -10.4'/>"
+
+        "<feComposite in='fox' in2='aged' operator='over'/></filter>"
 
         "<rect width='600' height='800' filter='url(#f)'/></svg>"
 
@@ -356,13 +364,13 @@ def build_book_html(config: dict, messages: list, base_dir: Path, photos_dir: Pa
 
         sheets.append(f"<div class='sheet'>{''.join(sheet_faces)}</div>")
  
-    paper = "#FFF5E4"
+    paper = "#F1E2C3"
 
     cover = "#B9606E"
 
     crumple_css = "".join(
 
-        f".p{k}{{background-image:url(\"{_crumple_uri(11 + 7 * k, paper, 6.5 + k % 2, 40 + 55 * k)}\")}}"
+        f".p{k}{{background-image:url(\"{_aged_paper_uri(11 + 7 * k, paper)}\")}}"
 
         f".p{k}.cover{{background-image:url(\"{_leather_uri(31 + 5 * k, cover)}\")}}"
 
@@ -388,7 +396,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 
 html,body{margin:0;height:100%;overflow:hidden;background:transparent;
 
-  font-family:Georgia,"Times New Roman",serif;color:#50383D}
+  font-family:Georgia,"Times New Roman",serif;color:#44301F}
 
 #wrap{height:100%;display:flex;flex-direction:column;border-radius:12px;
 
@@ -410,7 +418,7 @@ html:fullscreen #wrap,html:-webkit-full-screen #wrap{border-radius:0}
 
 .sheet.flipped{transform:rotateY(-180deg)}
 
-.face{position:absolute;inset:0;overflow:hidden;background-color:#F3DFDC;background-size:100% 100%;
+.face{position:absolute;inset:0;overflow:hidden;background-color:#EBDBB9;background-size:100% 100%;
 
   backface-visibility:hidden;-webkit-backface-visibility:hidden}
 
@@ -428,25 +436,21 @@ html:fullscreen #wrap,html:-webkit-full-screen #wrap{border-radius:0}
 
 .face::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0}
 
-.rightpage::before{background:
+.face.page::before{box-shadow:inset 0 0 calc(var(--pw)*.11) rgba(150,100,45,.36),
 
-  linear-gradient(to right,rgba(70,30,40,.42),rgba(70,30,40,.10) 5%,transparent 14%),
+  inset 0 0 calc(var(--pw)*.02) rgba(110,70,30,.30)}
 
-  linear-gradient(to left,rgba(70,30,40,.14),transparent 6%),
+.rightpage.page::before{background:
 
-  linear-gradient(118deg,transparent 44%,rgba(90,45,55,.16) 45%,rgba(255,255,255,.35) 46%,transparent 48%),
+  linear-gradient(to right,rgba(60,35,20,.42),rgba(60,35,20,.10) 5%,transparent 14%),
 
-  linear-gradient(28deg,transparent 60%,rgba(90,45,55,.14) 61%,rgba(255,255,255,.30) 62%,transparent 64%)}
+  linear-gradient(to left,rgba(60,35,20,.12),transparent 5%)}
 
-.leftpage::before{background:
+.leftpage.page::before{background:
 
-  linear-gradient(to left,rgba(70,30,40,.42),rgba(70,30,40,.10) 5%,transparent 14%),
+  linear-gradient(to left,rgba(60,35,20,.42),rgba(60,35,20,.10) 5%,transparent 14%),
 
-  linear-gradient(to right,rgba(70,30,40,.14),transparent 6%),
-
-  linear-gradient(62deg,transparent 38%,rgba(90,45,55,.16) 39%,rgba(255,255,255,.35) 40%,transparent 42%),
-
-  linear-gradient(152deg,transparent 66%,rgba(90,45,55,.14) 67%,rgba(255,255,255,.30) 68%,transparent 70%)}
+  linear-gradient(to right,rgba(60,35,20,.12),transparent 5%)}
 
 .face.cover{border-radius:4px 12px 12px 4px}
 
@@ -510,13 +514,13 @@ __CRUMPLE__
 
   font-size:calc(var(--pw)*.045)}
 
-.pno{flex:none;margin-top:calc(var(--pw)*.02);text-align:center;color:#A0757A;
+.pno{flex:none;margin-top:calc(var(--pw)*.02);text-align:center;color:#8B6F4E;
 
   font-size:calc(var(--pw)*.028);letter-spacing:.08em}
 
 .tape{position:absolute;top:-1.2%;left:calc(50% - var(--pw)*.09);width:calc(var(--pw)*.18);
 
-  height:calc(var(--pw)*.05);background:rgba(218,175,177,.85);border:1px solid rgba(156,100,105,.3);
+  height:calc(var(--pw)*.05);background:rgba(222,200,150,.82);border:1px solid rgba(150,120,70,.35);
 
   box-shadow:0 2px 3px rgba(104,65,72,.15);z-index:3}
 
@@ -544,7 +548,7 @@ __CRUMPLE__
 
 .pol .corners{inset:4%}
 
-.corners{position:absolute;inset:0;pointer-events:none;z-index:2;--c:#4A2B33;--s:calc(var(--pw)*.07);
+.corners{position:absolute;inset:0;pointer-events:none;z-index:2;--c:#2E221D;--s:calc(var(--pw)*.07);
 
   background:
 
@@ -562,7 +566,7 @@ __CRUMPLE__
 
 .tape.sm{top:-3%;left:calc(50% - var(--pw)*.07);width:calc(var(--pw)*.14);height:calc(var(--pw)*.04)}
 
-.closing{font-style:normal;font-weight:700;color:#89515B;display:flex;align-items:center;
+.closing{font-style:normal;font-weight:700;color:#7A4A3A;display:flex;align-items:center;
 
   justify-content:center;text-align:center}
 
@@ -600,7 +604,37 @@ __CRUMPLE__
 
 #label{min-width:130px;text-align:center;color:#50383D;font-weight:600;font-size:14px}
  
+#hearts{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+
+.heart{position:absolute;top:-70px;line-height:1;opacity:.28;will-change:transform;
+
+  animation:heartfall linear forwards;}
+
+.heart>i{display:inline-block;font-style:normal;animation:heartsway ease-in-out infinite alternate}
+
+@keyframes heartfall{
+
+  0%{transform:translateY(0);opacity:0}
+
+  8%{opacity:.28}
+
+  85%{opacity:.28}
+
+  100%{transform:translateY(calc(100vh + 140px));opacity:0}}
+
+@keyframes heartsway{from{transform:translateX(calc(var(--sway)*-1)) rotate(-14deg)}
+
+  to{transform:translateX(var(--sway)) rotate(14deg)}}
+
+#hb{display:none}
+
+body.fs #hb{display:inline-block}
+
+@media (prefers-reduced-motion:reduce){#hearts{display:none}}
+
 @media print{
+
+  #hearts{display:none!important}
 
   @page{size:6in 8.3in;margin:0}
 
@@ -637,6 +671,7 @@ __CRUMPLE__
 }
 </style></head>
 <body>
+<div id="hearts"></div>
 <div id="wrap">
 <div class="stage" id="stage"><div class="book" id="book">__SHEETS__</div></div>
 <div class="bar">
@@ -644,6 +679,7 @@ __CRUMPLE__
 <span id="label"></span>
 <button id="next">Next →</button>
 <button id="fs">⛶ Full screen</button>
+<button id="hb">💗 Hearts: on</button>
 <button id="pdf">📄 Save as PDF</button>
 </div>
 </div>
@@ -759,7 +795,7 @@ __CRUMPLE__
 
     root.setProperty('--pw',pw+'px'); root.setProperty('--ph',(pw/RATIO)+'px');
 
-    update(); fit();
+    update(); fit(); updateHearts();
 
   }
  
@@ -837,7 +873,85 @@ __CRUMPLE__
 
   window.addEventListener('afterprint',function(){ layout(); });
 
+  // ---- floating hearts, only while in full screen
+
+  var heartsEl=document.getElementById('hearts'), hb=document.getElementById('hb');
+
+  var EMOJI=['💖','💗','💕','💘','💝','❤️','🩷'], heartTimer=null, heartsOn=true;
+
+  function isFS(){
+
+    return !!(document.fullscreenElement||document.webkitFullscreenElement)
+
+      || (window.innerWidth>=screen.width-2 && window.innerHeight>=screen.height-2);
+
+  }
+
+  function spawnHeart(){
+
+    if(heartsEl.children.length>45) return;
+
+    var h=document.createElement('span'), inner=document.createElement('i');
+
+    var dur=7+Math.random()*7;
+
+    h.className='heart';
+
+    h.style.left=(Math.random()*96)+'%';
+
+    h.style.fontSize=(16+Math.random()*30)+'px';
+
+    h.style.animationDuration=dur+'s';
+
+    inner.textContent=EMOJI[Math.floor(Math.random()*EMOJI.length)];
+
+    inner.style.setProperty('--sway',(14+Math.random()*46)+'px');
+
+    inner.style.animationDuration=(2+Math.random()*2.5)+'s';
+
+    h.appendChild(inner); heartsEl.appendChild(h);
+
+    setTimeout(function(){ if(h.parentNode) h.parentNode.removeChild(h); },dur*1000+300);
+
+  }
+
+  function updateHearts(){
+
+    var fs=isFS();
+
+    document.body.classList.toggle('fs',fs);
+
+    if(fs && heartsOn && !heartTimer){
+
+      for(var i=0;i<8;i++) setTimeout(spawnHeart,i*350);   // quick start so the screen isn't empty
+
+      heartTimer=setInterval(spawnHeart,480);
+
+    } else if((!fs || !heartsOn) && heartTimer){
+
+      clearInterval(heartTimer); heartTimer=null;
+
+      if(!fs) heartsEl.innerHTML='';
+
+    }
+
+  }
+
+  hb.onclick=function(e){
+
+    e.stopPropagation(); heartsOn=!heartsOn;
+
+    hb.textContent = heartsOn ? '💗 Hearts: on' : '🤍 Hearts: off';
+
+    if(!heartsOn) heartsEl.innerHTML='';
+
+    updateHearts();
+
+  };
+
   function fsChange(){
+
+    updateHearts();
 
     var on=document.fullscreenElement||document.webkitFullscreenElement;
 
