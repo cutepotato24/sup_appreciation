@@ -34,18 +34,19 @@ PAGE_CSS = """
     pointer-events: none !important;
 }
 .block-container {
-    max-width: 80vw;
-    padding-left: 2rem;
-    padding-right: 2rem;
+    width: 100%;
+    max-width: 100vw;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 @media (max-width: 640px) {
     .block-container {
         max-width: 100%;
-        padding-left: 1rem;
-        padding-right: 1rem;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
     }
     .book-cover {
-        min-height: 360px;
+        width: 100%;
         padding: 3rem 2rem 3rem 3rem;
     }
 }
@@ -86,8 +87,8 @@ PAGE_CSS = """
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    width: min(100%, 780px);
-    min-height: 500px;
+    width: calc(50vw - 2rem);
+    height: clamp(520px, 74vh, 760px);
     margin: 2rem auto;
     padding: 4rem 4rem 4rem 5rem;
     border: 12px double #B4777E;
@@ -125,20 +126,28 @@ PAGE_CSS = """
 }
 .msg-card {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    height: clamp(520px, 74vh, 760px);
     padding: 1.3rem 1.5rem;
     border: 1px solid #D1A8AC;
     border-radius: 6px;
     margin: 1.4rem 0 1.2rem;
     background-color: #F7E8E6;
     background-image:
-        radial-gradient(ellipse at 14% 18%, rgba(255, 255, 255, 0.55), transparent 36%),
-        radial-gradient(ellipse at 86% 78%, rgba(165, 104, 111, 0.13), transparent 42%),
-        linear-gradient(132deg, transparent 38%, rgba(155, 95, 102, 0.05) 46%, rgba(255, 255, 255, 0.3) 50%, transparent 57%),
-        linear-gradient(28deg, transparent 28%, rgba(155, 95, 102, 0.05) 34%, rgba(255, 255, 255, 0.2) 38%, transparent 45%);
+        radial-gradient(ellipse at 12% 14%, rgba(255, 255, 255, 0.62), transparent 25%),
+        radial-gradient(ellipse at 91% 21%, rgba(147, 79, 88, 0.19), transparent 29%),
+        radial-gradient(ellipse at 22% 84%, rgba(146, 89, 95, 0.18), transparent 30%),
+        radial-gradient(ellipse at 79% 71%, rgba(255, 255, 255, 0.42), transparent 25%),
+        linear-gradient(147deg, transparent 39%, rgba(128, 70, 78, 0.15) 46%, rgba(255, 255, 255, 0.48) 50%, transparent 57%),
+        linear-gradient(32deg, transparent 27%, rgba(128, 70, 78, 0.14) 34%, rgba(255, 255, 255, 0.44) 38%, transparent 45%),
+        linear-gradient(92deg, transparent 31%, rgba(128, 70, 78, 0.08) 37%, rgba(255, 255, 255, 0.32) 40%, transparent 46%),
+        repeating-linear-gradient(2deg, rgba(110, 62, 70, 0.025) 0, transparent 2px, transparent 6px);
     outline: 1px solid rgba(181, 129, 130, 0.2);
     outline-offset: -6px;
     box-shadow: 0 5px 14px rgba(104, 65, 72, 0.16);
-    min-height: 340px;
     transform-style: preserve-3d;
     backface-visibility: hidden;
     animation-duration: 0.85s;
@@ -167,12 +176,27 @@ PAGE_CSS = """
     pointer-events: none;
     z-index: 1;
 }
-.msg-text { font-size: 1.1rem; line-height: 1.65; color: #50383D; font-style: italic; }
-.msg-author { margin-top: 0.9rem; font-weight: 700; text-align: right; font-size: 1.05rem; }
+.msg-text {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    font-size: var(--message-font-size, 1rem);
+    line-height: 1.38;
+    color: #50383D;
+    font-style: italic;
+}
+.msg-author {
+    flex-shrink: 0;
+    margin-top: 0.9rem;
+    font-weight: 700;
+    text-align: right;
+    font-size: 1.05rem;
+}
 .page-number {
-    margin-top: 1.4rem;
+    flex-shrink: 0;
+    margin-top: 0.8rem;
     color: #A0757A;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     letter-spacing: 0.08em;
     text-align: center;
 }
@@ -262,10 +286,12 @@ def render_card(author: str, message: str, index: int, turn_direction: str, page
     emoji = CARD_EMOJIS[index % len(CARD_EMOJIS)]
     tape_rotation = [-3, 2, -1, 3][index % 4]
     page_side = "left" if page_position == 0 else "right"
+    estimated_length = len(message) + 25 * message.count("\n")
+    font_size = min(1.1, max(0.75, 32 / max(1, estimated_length) ** 0.5))
     safe_message = html.escape(message).replace("\n", "<br>")
     st.markdown(
         f"""
-        <div class="msg-card turn-{turn_direction} page-{page_side}">
+        <div class="msg-card turn-{turn_direction} page-{page_side}" style="--message-font-size:{font_size:.2f}rem;">
             <div class="photo-tape" style="transform: rotate({tape_rotation}deg);"></div>
             <div class="msg-text">{safe_message}</div>
             <div class="msg-author" style="color:{accent};">{emoji} {html.escape(author)}</div>
