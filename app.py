@@ -20,10 +20,13 @@ CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
 
 PAGE_CSS = """
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+.stApp, .stApp * {
+    font-family: "Dancing Script", cursive !important;
+}
 .stApp {
     background: #FFF1F2;
     color: #4C1D25;
-    font-family: "URW Chancery L", "Brush Script MT", "Segoe Script", cursive;
 }
 .block-container {
     max-width: 100%;
