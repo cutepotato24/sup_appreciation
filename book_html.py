@@ -737,6 +737,8 @@ body.fs #hb{display:inline-block}
 
     else return;
 
+    enterFullscreen();
+
     update();
 
   }
@@ -845,19 +847,49 @@ body.fs #hb{display:inline-block}
 
     }
 
+    enterFullscreen();
+
+  };
+
+  function enterFullscreen(){
+
+    if(document.fullscreenElement||document.webkitFullscreenElement) return;
+
+    var el=document.documentElement;
+
     var req=el.requestFullscreen||el.webkitRequestFullscreen, p;
 
-    try{ p=req.call(el); }catch(err){ p=Promise.reject(err); }
+    try{
+
+      if(!req) throw new Error('Fullscreen is not supported');
+
+      p=req.call(el);
+
+    }catch(err){ p=Promise.reject(err); }
 
     if(p&&p.catch) p.catch(function(){
 
-      try{ window.frameElement.requestFullscreen(); }
+      var frame=window.frameElement;
 
-      catch(err2){ fsB.textContent='Press F11 for full screen'; }
+      var frameReq=frame&&(frame.requestFullscreen||frame.webkitRequestFullscreen);
+
+      if(!frameReq){ fsB.textContent='Press F11 for full screen'; return; }
+
+      try{
+
+        var framePromise=frameReq.call(frame);
+
+        if(framePromise&&framePromise.catch) framePromise.catch(function(){
+
+          fsB.textContent='Press F11 for full screen';
+
+        });
+
+      }catch(err2){ fsB.textContent='Press F11 for full screen'; }
 
     });
 
-  };
+  }
 
   var pdfB=document.getElementById('pdf');
 
