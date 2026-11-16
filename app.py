@@ -44,6 +44,10 @@ PAGE_CSS = """
         padding-left: 1rem;
         padding-right: 1rem;
     }
+    .book-cover {
+        min-height: 360px;
+        padding: 3rem 2rem 3rem 3rem;
+    }
 }
 .hero-title {
     text-align: center;
@@ -75,6 +79,50 @@ PAGE_CSS = """
     color: #89515B;
     margin: 1.5rem 0 1rem 0;
 }
+.book-cover {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: min(100%, 780px);
+    min-height: 500px;
+    margin: 2rem auto;
+    padding: 4rem 4rem 4rem 5rem;
+    border: 12px double #B4777E;
+    border-radius: 12px;
+    background: #DDB7BC;
+    box-shadow:
+        inset 0 0 0 4px #F1DBDC,
+        inset 0 0 28px rgba(120, 71, 79, 0.16),
+        0 16px 30px rgba(104, 65, 72, 0.22);
+    text-align: center;
+    animation: coverOpen 0.75s ease both;
+}
+.book-cover::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 18px;
+    width: 10px;
+    border-left: 2px solid rgba(117, 67, 77, 0.32);
+    border-right: 2px solid rgba(117, 67, 77, 0.32);
+    background: rgba(120, 71, 79, 0.08);
+}
+.cover-title {
+    color: #75434D;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.2;
+}
+.cover-subtitle {
+    margin-top: 1.5rem;
+    color: #89515B;
+    font-size: 1.35rem;
+}
 .msg-card {
     position: relative;
     padding: 1.3rem 1.5rem;
@@ -91,7 +139,21 @@ PAGE_CSS = """
     outline-offset: -6px;
     box-shadow: 0 5px 14px rgba(104, 65, 72, 0.16);
     min-height: 340px;
-    animation: pageTurn 0.45s ease both;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    animation-duration: 0.85s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    animation-fill-mode: both;
+}
+.msg-card.page-left { transform-origin: right center; }
+.msg-card.page-right { transform-origin: left center; }
+.msg-card.turn-forward.page-left { animation-name: flipForwardLeft; }
+.msg-card.turn-forward.page-right { animation-name: flipForwardRight; }
+.msg-card.turn-backward.page-left { animation-name: flipBackwardLeft; }
+.msg-card.turn-backward.page-right { animation-name: flipBackwardRight; }
+.msg-card.turn-forward.page-right,
+.msg-card.turn-backward.page-right {
+    animation-delay: 0.12s;
 }
 .photo-tape {
     position: absolute;
@@ -137,9 +199,29 @@ div.stButton > button {
     box-shadow: 0 3px 8px rgba(104, 65, 72, 0.16);
 }
 div.stButton > button:hover { color: #50383D; border-color: #89515B; transform: translateY(-2px); }
-@keyframes pageTurn {
-    from { opacity: 0; transform: perspective(900px) rotateY(-10deg) translateX(10px); }
-    to { opacity: 1; transform: perspective(900px) rotateY(0) translateX(0); }
+@keyframes flipForwardLeft {
+    0% { opacity: 0.15; transform: perspective(1200px) rotateY(100deg); filter: brightness(0.7); }
+    55% { opacity: 0.9; transform: perspective(1200px) rotateY(22deg); filter: brightness(0.88); }
+    100% { opacity: 1; transform: perspective(1200px) rotateY(0); filter: brightness(1); }
+}
+@keyframes flipForwardRight {
+    0% { opacity: 0.15; transform: perspective(1200px) rotateY(-100deg); filter: brightness(0.7); }
+    55% { opacity: 0.9; transform: perspective(1200px) rotateY(-22deg); filter: brightness(0.88); }
+    100% { opacity: 1; transform: perspective(1200px) rotateY(0); filter: brightness(1); }
+}
+@keyframes flipBackwardLeft {
+    0% { opacity: 0.15; transform: perspective(1200px) rotateY(-100deg); filter: brightness(0.7); }
+    55% { opacity: 0.9; transform: perspective(1200px) rotateY(-22deg); filter: brightness(0.88); }
+    100% { opacity: 1; transform: perspective(1200px) rotateY(0); filter: brightness(1); }
+}
+@keyframes flipBackwardRight {
+    0% { opacity: 0.15; transform: perspective(1200px) rotateY(100deg); filter: brightness(0.7); }
+    55% { opacity: 0.9; transform: perspective(1200px) rotateY(22deg); filter: brightness(0.88); }
+    100% { opacity: 1; transform: perspective(1200px) rotateY(0); filter: brightness(1); }
+}
+@keyframes coverOpen {
+    from { opacity: 0; transform: perspective(1200px) rotateY(-12deg) translateX(-12px); }
+    to { opacity: 1; transform: perspective(1200px) rotateY(0) translateX(0); }
 }
 </style>
 """
@@ -164,7 +246,7 @@ def load_json(path: Path) -> Any:
         return json.load(file)
 
 
-def render_card(author: str, message: str, index: int) -> None:
+def render_card(author: str, message: str, index: int, turn_direction: str, page_position: int) -> None:
     """Render a single team message as a colourful card.
 
     Parameters
@@ -179,10 +261,11 @@ def render_card(author: str, message: str, index: int) -> None:
     accent = CARD_ACCENTS[index % len(CARD_ACCENTS)]
     emoji = CARD_EMOJIS[index % len(CARD_EMOJIS)]
     tape_rotation = [-3, 2, -1, 3][index % 4]
+    page_side = "left" if page_position == 0 else "right"
     safe_message = html.escape(message).replace("\n", "<br>")
     st.markdown(
         f"""
-        <div class="msg-card" style="animation-delay:{index * 0.1}s;">
+        <div class="msg-card turn-{turn_direction} page-{page_side}">
             <div class="photo-tape" style="transform: rotate({tape_rotation}deg);"></div>
             <div class="msg-text">{safe_message}</div>
             <div class="msg-author" style="color:{accent};">{emoji} {html.escape(author)}</div>
@@ -201,14 +284,16 @@ def main() -> None:
     messages.append(CATH_MESSAGE)
 
     st.markdown(PAGE_CSS, unsafe_allow_html=True)
-    st.markdown(f"<div class='hero-title'>🎉 {html.escape(config['title'])} 🎉</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='hero-subtitle'>{html.escape(config['subtitle'])}</div>", unsafe_allow_html=True)
 
     if "opened" not in st.session_state:
         st.session_state.opened = False
     if "current_spread" not in st.session_state:
-        st.session_state.current_spread = 0
+        st.session_state.current_spread = -1
+    if "turn_direction" not in st.session_state:
+        st.session_state.turn_direction = "forward"
     if not st.session_state.opened:
+        st.markdown(f"<div class='hero-title'>🎉 {html.escape(config['title'])} 🎉</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='hero-subtitle'>{html.escape(config['subtitle'])}</div>", unsafe_allow_html=True)
         _, middle, _ = st.columns([1, 2, 1])
         if middle.button("🎁 Open your surprise", use_container_width=True):
             st.session_state.opened = True
@@ -217,11 +302,26 @@ def main() -> None:
         return
 
     st.audio(str(AUDIO_PATH), format="audio/mp3", autoplay=True, loop=True)
-    st.markdown(f"<div class='intro-box'>{html.escape(config['intro'])}</div>", unsafe_allow_html=True)
+    if st.session_state.current_spread == -1:
+        st.markdown(
+            f"<div class='book-cover'>"
+            f"<div class='cover-title'>{html.escape(config['title'])}</div>"
+            f"<div class='cover-subtitle'>{html.escape(config['subtitle'])}</div>"
+            "</div>",
+            unsafe_allow_html=True,
+        )
+        _, middle, _ = st.columns([1, 2, 1])
+        if middle.button("Open the book →", use_container_width=True):
+            st.session_state.current_spread = 0
+            st.session_state.turn_direction = "forward"
+            st.rerun()
+        return
 
-    photo = config.get("photo")
-    if photo and (BASE_DIR / photo).exists():
-        st.image(str(BASE_DIR / photo), use_container_width=True)
+    if st.session_state.current_spread == 0:
+        st.markdown(f"<div class='intro-box'>{html.escape(config['intro'])}</div>", unsafe_allow_html=True)
+        photo = config.get("photo")
+        if photo and (BASE_DIR / photo).exists():
+            st.image(str(BASE_DIR / photo), use_container_width=True)
 
     pages_per_spread = 2
     total_spreads = (len(messages) + pages_per_spread - 1) // pages_per_spread
@@ -235,15 +335,17 @@ def main() -> None:
         unsafe_allow_html=True,
     )
     page_columns = st.columns(pages_per_spread, gap="large")
-    for column, index in zip(page_columns, range(first_page, last_page)):
+    for page_position, (column, index) in enumerate(zip(page_columns, range(first_page, last_page))):
         with column:
             item = messages[index]
-            render_card(item["name"], item["message"], index)
+            render_card(item["name"], item["message"], index, st.session_state.turn_direction, page_position)
 
     previous_column, next_column = st.columns(2, gap="large")
     with previous_column:
-        if st.button("← Previous 2 pages", disabled=current_spread == 0, use_container_width=True):
-            st.session_state.current_spread -= 1
+        previous_label = "← Cover" if current_spread == 0 else "← Previous 2 pages"
+        if st.button(previous_label, use_container_width=True):
+            st.session_state.turn_direction = "backward"
+            st.session_state.current_spread = current_spread - 1
             st.rerun()
     with next_column:
         if st.button(
@@ -251,6 +353,7 @@ def main() -> None:
             disabled=current_spread >= total_spreads - 1,
             use_container_width=True,
         ):
+            st.session_state.turn_direction = "forward"
             st.session_state.current_spread += 1
             st.rerun()
 
