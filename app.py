@@ -26,7 +26,12 @@ PAGE_CSS = """
 }
 [data-testid="stAudio"],
 .stAudio {
-    display: none !important;
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 .block-container {
     max-width: 80vw;
