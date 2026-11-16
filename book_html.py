@@ -192,7 +192,9 @@ def build_book_html(config: dict, messages: list, base_dir: Path) -> str:
 
         faces.append(("page", _message_page(i, item["name"], item["message"], len(faces))))
 
-    faces.append(("page", _closing_page(config, len(faces))))
+    if config.get("closing", "").strip():
+
+        faces.append(("page", _closing_page(config, len(faces))))
 
     if (len(faces) + 1) % 2:
 
