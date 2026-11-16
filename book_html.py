@@ -230,7 +230,7 @@ def _cover(config: dict) -> str:
  
 def _back_cover() -> str:
 
-    return "<div class='in coverin'><div class='csub'>💖 with love, from the team 💖</div></div>"
+    return "<div class='in coverin'><div class='csub'>💖 Mahal Ka Namin, Stal 💖</div></div>"
  
  
 def build_book_html(config: dict, messages: list, base_dir: Path, photos_dir: Path | None = None) -> str:
