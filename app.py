@@ -21,10 +21,7 @@ CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
 PAGE_CSS = """
 <style>
 .stApp {
-    background-color: #FFF1F2;
-    background-image:
-        repeating-linear-gradient(135deg, rgba(190, 18, 60, 0.06) 0, rgba(190, 18, 60, 0.06) 2px, transparent 2px, transparent 34px),
-        linear-gradient(125deg, #FFF1F2 0%, #FFE4E6 48%, #FCE7F3 100%);
+    background: #FFF1F2;
     color: #4C1D25;
 }
 .hero-title {
@@ -42,7 +39,7 @@ PAGE_CSS = """
     margin-bottom: 1.5rem;
 }
 .intro-box {
-    background: linear-gradient(135deg, #FFF1F2, #FCE4E7);
+    background: #FCE4E7;
     border-left: 6px solid #BE123C;
     border-radius: 6px;
     padding: 1rem 1.4rem;
@@ -64,11 +61,8 @@ PAGE_CSS = """
     border: 1px solid #F3B9C4;
     border-radius: 6px;
     margin-bottom: 1.2rem;
-    background-color: #FFF7F7;
-    background-image:
-        repeating-linear-gradient(0deg, rgba(159, 18, 57, 0.025) 0, rgba(159, 18, 57, 0.025) 1px, transparent 1px, transparent 5px),
-        linear-gradient(135deg, #FFF8F8, #FCE7EB);
-    box-shadow: 0 5px 14px rgba(127, 29, 53, 0.12), inset 0 0 24px rgba(159, 18, 57, 0.04);
+    background: #FFF7F7;
+    box-shadow: 0 5px 14px rgba(127, 29, 53, 0.12);
     animation: pop 0.6s ease both;
 }
 .msg-text { font-size: 1.1rem; line-height: 1.65; color: #4C1D25; }
@@ -88,7 +82,7 @@ div.stButton > button {
     padding: 0.6rem 1.2rem;
     border: 1px solid #BE123C;
     color: #7F1D35;
-    background: linear-gradient(180deg, #FFF1F2, #FCE4E7);
+    background: #FCE4E7;
     box-shadow: 0 3px 8px rgba(127, 29, 53, 0.12);
 }
 div.stButton > button:hover { color: #5B1F2A; border-color: #881337; transform: translateY(-2px); }
