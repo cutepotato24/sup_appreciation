@@ -20,9 +20,8 @@ CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
 
 PAGE_CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
 .stApp, .stApp * {
-    font-family: "Dancing Script", cursive !important;
+    font-style: italic !important;
 }
 .stApp {
     background: #FFF1F2;
