@@ -147,7 +147,7 @@ def _cover(config: dict) -> str:
  
 def _back_cover() -> str:
 
-    return "<div class='in coverin'><div class='csub'>💖 Salamat, Mahal ka namin, Stal 💖</div></div>"
+    return "<div class='in coverin'><div class='csub'>💖 with love, from the team 💖</div></div>"
  
  
 def build_book_html(config: dict, messages: list, base_dir: Path) -> str:
@@ -192,9 +192,7 @@ def build_book_html(config: dict, messages: list, base_dir: Path) -> str:
 
         faces.append(("page", _message_page(i, item["name"], item["message"], len(faces))))
 
-    if config.get("closing", "").strip():
-
-        faces.append(("page", _closing_page(config, len(faces))))
+    faces.append(("page", _closing_page(config, len(faces))))
 
     if (len(faces) + 1) % 2:
 
@@ -378,27 +376,37 @@ __CRUMPLE__
  
 @media print{
 
-  @page{size:6in 8.3333in;margin:0}
+  @page{size:6in 8.3in;margin:0}
 
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 
-  html,body{height:auto;overflow:visible;background:none}
+  html,body{height:auto!important;min-height:0!important;overflow:visible!important;background:none!important;margin:0!important;padding:0!important}
 
-  #wrap{display:block;height:auto;background:none;border-radius:0}
+  #wrap{display:block!important;height:auto!important;background:none!important;border-radius:0!important}
 
-  .bar{display:none}
+  .bar{display:none!important}
 
-  .stage{display:block;perspective:none;overflow:visible;height:auto}
+  .stage{display:block!important;perspective:none!important;overflow:visible!important;height:auto!important;margin:0!important;padding:0!important}
 
-  .book{display:block;width:auto;height:auto;transform:none!important;transition:none;cursor:auto}
+  .book{display:block!important;width:auto!important;height:auto!important;transform:none!important;
 
-  .sheet{position:static;display:block;width:auto;height:auto;transform:none!important;transition:none}
+    transform-style:flat!important;transition:none!important;cursor:auto}
 
-  .face,.face.front,.face.back{position:relative;display:block;width:6in;height:8.3333in;
+  .sheet{position:static!important;display:block!important;width:auto!important;height:auto!important;
 
-    transform:none!important;visibility:visible!important;box-shadow:none;border-radius:0;
+    transform:none!important;transform-style:flat!important;transition:none!important;margin:0!important;padding:0!important}
 
-    break-after:page;page-break-after:always;overflow:hidden}
+  .face,.face.front,.face.back{position:relative!important;display:block!important;
+
+    width:6in!important;height:8.25in!important;margin:0!important;transform:none!important;
+
+    visibility:visible!important;box-shadow:none!important;border-radius:0!important;overflow:hidden!important;
+
+    break-after:page;page-break-after:always;break-inside:avoid;page-break-inside:avoid}
+
+  .face:last-child:last-of-type{break-after:auto;page-break-after:auto}
+
+  .sheet:last-child .face.back{break-after:auto;page-break-after:auto}
 
 }
 </style></head>
