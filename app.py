@@ -24,7 +24,8 @@ PAGE_CSS = """
     background: #E7D1D4;
     color: #50383D;
 }
-div[data-testid="stAudio"] audio {
+[data-testid="stAudio"],
+.stAudio {
     display: none !important;
 }
 .block-container {
