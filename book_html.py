@@ -147,7 +147,7 @@ def _cover(config: dict) -> str:
  
 def _back_cover() -> str:
 
-    return "<div class='in coverin'><div class='csub'>Mahal ka namin, Stal!</div></div>"
+    return "<div class='in coverin'><div class='csub'>💖 with love, from the team 💖</div></div>"
  
  
 def build_book_html(config: dict, messages: list, base_dir: Path) -> str:
@@ -373,6 +373,32 @@ __CRUMPLE__
 .bar button:disabled{opacity:.4;cursor:default}
 
 #label{min-width:130px;text-align:center;color:#50383D;font-weight:600;font-size:14px}
+ 
+@media print{
+
+  @page{size:6in 8.3333in;margin:0}
+
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  html,body{height:auto;overflow:visible;background:none}
+
+  #wrap{display:block;height:auto;background:none;border-radius:0}
+
+  .bar{display:none}
+
+  .stage{display:block;perspective:none;overflow:visible;height:auto}
+
+  .book{display:block;width:auto;height:auto;transform:none!important;transition:none;cursor:auto}
+
+  .sheet{position:static;display:block;width:auto;height:auto;transform:none!important;transition:none}
+
+  .face,.face.front,.face.back{position:relative;display:block;width:6in;height:8.3333in;
+
+    transform:none!important;visibility:visible!important;box-shadow:none;border-radius:0;
+
+    break-after:page;page-break-after:always;overflow:hidden}
+
+}
 </style></head>
 <body>
 <div id="wrap">
@@ -382,6 +408,7 @@ __CRUMPLE__
 <span id="label"></span>
 <button id="next">Next →</button>
 <button id="fs">⛶ Full screen</button>
+<button id="pdf">📄 Save as PDF</button>
 </div>
 </div>
 <script>
@@ -559,6 +586,20 @@ __CRUMPLE__
     });
 
   };
+
+  var pdfB=document.getElementById('pdf');
+
+  pdfB.onclick=function(e){ e.stopPropagation(); window.print(); };
+
+  window.addEventListener('beforeprint',function(){      // size every page for the paper, then fit text
+
+    pw=576; var r=document.documentElement.style;
+
+    r.setProperty('--pw','576px'); r.setProperty('--ph','800px'); fit();
+
+  });
+
+  window.addEventListener('afterprint',function(){ layout(); });
 
   function fsChange(){
 

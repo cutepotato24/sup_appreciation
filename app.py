@@ -13,6 +13,8 @@ import streamlit as st
 import streamlit.components.v1 as components
  
 from book_html import build_book_html
+
+from book_pdf import build_book_pdf
  
 BASE_DIR = Path(__file__).parent
 
@@ -90,6 +92,15 @@ def load_json(path: Path) -> Any:
         return json.load(file)
  
  
+@st.cache_data(show_spinner="Preparing the print-ready PDF…")
+
+def make_print_pdf(book_doc: str) -> bytes | None:
+
+    """Render the book to a PDF once and reuse it on later reruns."""
+
+    return build_book_pdf(book_doc)
+ 
+ 
 def main() -> None:
 
     """Run the app."""
@@ -157,6 +168,34 @@ def main() -> None:
         use_container_width=True,
 
     )
+
+    print_pdf = make_print_pdf(book_doc)
+
+    if print_pdf:
+
+        middle.download_button(
+
+            "🖨️ Download print-ready PDF",
+
+            data=print_pdf,
+
+            file_name="book-for-stal.pdf",
+
+            mime="application/pdf",
+
+            use_container_width=True,
+
+        )
+
+    else:
+
+        st.caption(
+
+            "Print-ready PDF unavailable: run `pip install playwright` and `playwright install chromium`, "
+
+            "or use the 📄 Save as PDF button under the book."
+
+        )
 
     if middle.button("🎈 More balloons!", use_container_width=True):
 
