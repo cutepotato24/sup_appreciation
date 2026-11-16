@@ -184,7 +184,6 @@ def main() -> None:
     messages.append(CATH_MESSAGE)
 
     st.markdown(PAGE_CSS, unsafe_allow_html=True)
-    st.audio(str(AUDIO_PATH), format="audio/mp3", autoplay=True, loop=True)
     st.markdown(f"<div class='hero-title'>🎉 {html.escape(config['title'])} 🎉</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='hero-subtitle'>{html.escape(config['subtitle'])}</div>", unsafe_allow_html=True)
 
@@ -198,6 +197,7 @@ def main() -> None:
             st.rerun()
         return
 
+    st.audio(str(AUDIO_PATH), format="audio/mp3", autoplay=True, loop=True)
     st.markdown(f"<div class='intro-box'>{html.escape(config['intro'])}</div>", unsafe_allow_html=True)
 
     photo = config.get("photo")
