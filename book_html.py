@@ -274,7 +274,11 @@ html:fullscreen #wrap,html:-webkit-full-screen #wrap{border-radius:0}
 
   backface-visibility:hidden;-webkit-backface-visibility:hidden}
 
-.face.back{transform:rotateY(180deg)}
+.face *{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+
+.face.front{transform:translateZ(.6px)}
+
+.face.back{transform:rotateY(180deg) translateZ(.6px)}
 
 .rightpage{border-radius:2px 7px 7px 2px;box-shadow:3px 4px 10px rgba(70,35,45,.30)}
 
@@ -402,11 +406,27 @@ __CRUMPLE__
 
   }
 
+  function vis(s,front,back){
+
+    s.firstChild.style.visibility = front ? 'visible' : 'hidden';
+
+    s.lastChild.style.visibility  = back  ? 'visible' : 'hidden';
+
+  }
+
   function flip(s,toLeft){
 
-    s._anim=true; s.style.zIndex=++zc; s.classList.toggle('flipped',toLeft);
+    s._anim=true; s.style.zIndex=++zc;
 
-    setTimeout(function(){ s._anim=false; setZ(); },1200);
+    vis(s,true,true);                       // both faces needed while the page is turning
+
+    s.classList.toggle('flipped',toLeft);
+
+    clearTimeout(s._t1); clearTimeout(s._t2);
+
+    s._t1=setTimeout(function(){ vis(s,!toLeft,toLeft); },575);   // halfway: hide the face turned away
+
+    s._t2=setTimeout(function(){ s._anim=false; setZ(); },1200);
 
   }
 
@@ -556,6 +576,8 @@ __CRUMPLE__
 
   window.addEventListener('resize',layout);
  
+  sheets.forEach(function(s){ vis(s,true,false); });
+
   setZ(); layout();
 
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(layout);
