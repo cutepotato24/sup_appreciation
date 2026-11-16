@@ -15,7 +15,7 @@ CONFIG_PATH = BASE_DIR / "config.json"
 MESSAGES_PATH = BASE_DIR / "messages.json"
 AUDIO_PATH = BASE_DIR / "salamat.mp3"
 
-CARD_ACCENTS = ["#9F1239", "#BE123C", "#881337", "#B4233C", "#A61B3B", "#7F1D35"]
+CARD_ACCENTS = ["#6B4E2E", "#8A6B45", "#806444", "#78523B", "#9A774F", "#5C5140"]
 CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
 
 PAGE_CSS = """
@@ -24,8 +24,8 @@ PAGE_CSS = """
     font-style: italic !important;
 }
 .stApp {
-    background: #FFF1F2;
-    color: #4C1D25;
+    background: #E8DEC9;
+    color: #493B2C;
 }
 .block-container {
     max-width: 80vw;
@@ -44,47 +44,60 @@ PAGE_CSS = """
     font-size: 3.2rem;
     font-weight: 800;
     margin: 0.5rem 0 0.2rem 0;
-    color: #7F1D35;
+    color: #654B32;
 }
 .hero-subtitle {
     text-align: center;
     font-size: 1.3rem;
-    color: #9F3048;
+    color: #80684D;
     margin-bottom: 1.5rem;
 }
 .intro-box {
-    background: #FCE4E7;
-    border-left: 6px solid #BE123C;
+    background: #F0E4CF;
+    border-left: 6px solid #9B8056;
     border-radius: 6px;
     padding: 1rem 1.4rem;
     font-size: 1.1rem;
-    color: #5B1F2A;
+    color: #493B2C;
     margin: 1rem 0 1.5rem 0;
-    box-shadow: inset 0 0 22px rgba(159, 18, 57, 0.06);
+    box-shadow: inset 0 0 22px rgba(92, 73, 45, 0.08);
 }
 .section-title {
     text-align: center;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #9F1239;
+    color: #755A3C;
     margin: 1.5rem 0 1rem 0;
 }
 .msg-card {
+    position: relative;
     padding: 1.3rem 1.5rem;
-    border: 1px solid #F3B9C4;
+    border: 1px solid #CDB98F;
     border-radius: 6px;
-    margin-bottom: 1.2rem;
-    background: #FFF7F7;
-    box-shadow: 0 5px 14px rgba(127, 29, 53, 0.12);
+    margin: 1.4rem 0 1.2rem;
+    background: #F9F3E7;
+    box-shadow: 0 5px 14px rgba(80, 61, 37, 0.16);
     animation: pop 0.6s ease both;
 }
-.msg-text { font-size: 1.1rem; line-height: 1.65; color: #4C1D25; }
+.photo-tape {
+    position: absolute;
+    top: -12px;
+    left: calc(50% - 44px);
+    width: 88px;
+    height: 24px;
+    background: rgba(215, 195, 142, 0.82);
+    border: 1px solid rgba(148, 121, 68, 0.3);
+    box-shadow: 0 2px 3px rgba(80, 61, 37, 0.15);
+    pointer-events: none;
+    z-index: 1;
+}
+.msg-text { font-size: 1.1rem; line-height: 1.65; color: #493B2C; }
 .msg-author { margin-top: 0.9rem; font-weight: 700; text-align: right; font-size: 1.05rem; }
 .closing {
     text-align: center;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #9F3048;
+    color: #72583D;
     margin: 1.5rem 0;
 }
 div.stButton > button {
@@ -92,12 +105,12 @@ div.stButton > button {
     font-weight: 700;
     font-size: 1rem;
     padding: 0.6rem 1.2rem;
-    border: 1px solid #BE123C;
-    color: #7F1D35;
-    background: #FCE4E7;
-    box-shadow: 0 3px 8px rgba(127, 29, 53, 0.12);
+    border: 1px solid #A58A5F;
+    color: #624A32;
+    background: #F0E4CF;
+    box-shadow: 0 3px 8px rgba(80, 61, 37, 0.16);
 }
-div.stButton > button:hover { color: #5B1F2A; border-color: #881337; transform: translateY(-2px); }
+div.stButton > button:hover { color: #4D3824; border-color: #806444; transform: translateY(-2px); }
 @keyframes pop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 </style>
 """
@@ -136,10 +149,12 @@ def render_card(author: str, message: str, index: int) -> None:
     """
     accent = CARD_ACCENTS[index % len(CARD_ACCENTS)]
     emoji = CARD_EMOJIS[index % len(CARD_EMOJIS)]
+    tape_rotation = [-3, 2, -1, 3][index % 4]
     safe_message = html.escape(message).replace("\n", "<br>")
     st.markdown(
         f"""
         <div class="msg-card" style="animation-delay:{index * 0.1}s;">
+            <div class="photo-tape" style="transform: rotate({tape_rotation}deg);"></div>
             <div class="msg-text">{safe_message}</div>
             <div class="msg-author" style="color:{accent};">{emoji} {html.escape(author)}</div>
         </div>
