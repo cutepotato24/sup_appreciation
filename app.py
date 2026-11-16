@@ -15,17 +15,17 @@ CONFIG_PATH = BASE_DIR / "config.json"
 MESSAGES_PATH = BASE_DIR / "messages.json"
 AUDIO_PATH = BASE_DIR / "salamat.mp3"
 
-CARD_ACCENTS = ["#6B4E2E", "#8A6B45", "#806444", "#78523B", "#9A774F", "#5C5140"]
+CARD_ACCENTS = ["#9B5664", "#A75D68", "#7D4852", "#B06E75", "#80505A", "#986872"]
 CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
 
 PAGE_CSS = """
 <style>
-.stApp, .stApp * {
-    font-style: italic !important;
-}
 .stApp {
-    background: #E8DEC9;
-    color: #493B2C;
+    background: #E7D1D4;
+    color: #50383D;
+}
+div[data-testid="stAudio"] audio {
+    display: none !important;
 }
 .block-container {
     max-width: 80vw;
@@ -44,39 +44,46 @@ PAGE_CSS = """
     font-size: 3.2rem;
     font-weight: 800;
     margin: 0.5rem 0 0.2rem 0;
-    color: #654B32;
+    color: #75434D;
 }
 .hero-subtitle {
     text-align: center;
     font-size: 1.3rem;
-    color: #80684D;
+    color: #98616A;
     margin-bottom: 1.5rem;
 }
 .intro-box {
-    background: #F0E4CF;
-    border-left: 6px solid #9B8056;
+    background: #F1DBDC;
+    border-left: 6px solid #B4777E;
     border-radius: 6px;
     padding: 1rem 1.4rem;
     font-size: 1.1rem;
-    color: #493B2C;
+    color: #50383D;
     margin: 1rem 0 1.5rem 0;
-    box-shadow: inset 0 0 22px rgba(92, 73, 45, 0.08);
+    box-shadow: inset 0 0 22px rgba(120, 71, 79, 0.08);
 }
 .section-title {
     text-align: center;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #755A3C;
+    color: #89515B;
     margin: 1.5rem 0 1rem 0;
 }
 .msg-card {
     position: relative;
     padding: 1.3rem 1.5rem;
-    border: 1px solid #CDB98F;
+    border: 1px solid #D1A8AC;
     border-radius: 6px;
     margin: 1.4rem 0 1.2rem;
-    background: #F9F3E7;
-    box-shadow: 0 5px 14px rgba(80, 61, 37, 0.16);
+    background-color: #F7E8E6;
+    background-image:
+        radial-gradient(ellipse at 14% 18%, rgba(255, 255, 255, 0.55), transparent 36%),
+        radial-gradient(ellipse at 86% 78%, rgba(165, 104, 111, 0.13), transparent 42%),
+        linear-gradient(132deg, transparent 38%, rgba(155, 95, 102, 0.05) 46%, rgba(255, 255, 255, 0.3) 50%, transparent 57%),
+        linear-gradient(28deg, transparent 28%, rgba(155, 95, 102, 0.05) 34%, rgba(255, 255, 255, 0.2) 38%, transparent 45%);
+    outline: 1px solid rgba(181, 129, 130, 0.2);
+    outline-offset: -6px;
+    box-shadow: 0 5px 14px rgba(104, 65, 72, 0.16);
     animation: pop 0.6s ease both;
 }
 .photo-tape {
@@ -85,19 +92,19 @@ PAGE_CSS = """
     left: calc(50% - 44px);
     width: 88px;
     height: 24px;
-    background: rgba(215, 195, 142, 0.82);
-    border: 1px solid rgba(148, 121, 68, 0.3);
-    box-shadow: 0 2px 3px rgba(80, 61, 37, 0.15);
+    background: rgba(218, 175, 177, 0.82);
+    border: 1px solid rgba(156, 100, 105, 0.3);
+    box-shadow: 0 2px 3px rgba(104, 65, 72, 0.15);
     pointer-events: none;
     z-index: 1;
 }
-.msg-text { font-size: 1.1rem; line-height: 1.65; color: #493B2C; }
+.msg-text { font-size: 1.1rem; line-height: 1.65; color: #50383D; font-style: italic; }
 .msg-author { margin-top: 0.9rem; font-weight: 700; text-align: right; font-size: 1.05rem; }
 .closing {
     text-align: center;
     font-size: 1.8rem;
     font-weight: 700;
-    color: #72583D;
+    color: #89515B;
     margin: 1.5rem 0;
 }
 div.stButton > button {
@@ -105,12 +112,12 @@ div.stButton > button {
     font-weight: 700;
     font-size: 1rem;
     padding: 0.6rem 1.2rem;
-    border: 1px solid #A58A5F;
-    color: #624A32;
-    background: #F0E4CF;
-    box-shadow: 0 3px 8px rgba(80, 61, 37, 0.16);
+    border: 1px solid #B4777E;
+    color: #75434D;
+    background: #F1DBDC;
+    box-shadow: 0 3px 8px rgba(104, 65, 72, 0.16);
 }
-div.stButton > button:hover { color: #4D3824; border-color: #806444; transform: translateY(-2px); }
+div.stButton > button:hover { color: #50383D; border-color: #89515B; transform: translateY(-2px); }
 @keyframes pop { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 </style>
 """
