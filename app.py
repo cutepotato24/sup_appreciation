@@ -116,9 +116,15 @@ def photos_stamp() -> tuple:
  
 @st.cache_data(show_spinner="Preparing the print-ready PDF…")
 
-def make_print_pdf(book_doc: str) -> bytes | None:
+def make_print_pdf(book_doc: str) -> bytes:
 
-    """Render the book to a PDF once and reuse it on later reruns."""
+    """Render the book to a PDF once and reuse it on later reruns.
+ 
+    Failures raise, and Streamlit does not cache exceptions, so fixing the problem and
+
+    reloading the page is enough to try again.
+
+    """
 
     return build_book_pdf(book_doc)
  
@@ -159,7 +165,7 @@ def main() -> None:
  
     st.audio(str(AUDIO_PATH), format="audio/mp3", autoplay=True, loop=True)
  
-    # The whole book (cover, pages, flipping, full screen) lives in one HTML component.
+    # The whole album (cover, pages, flipping, full screen) lives in one HTML component.
 
     book_doc = make_book(config, messages, photos_stamp())
 
@@ -173,7 +179,7 @@ def main() -> None:
 
     st.caption("Click the right page (or → key) to turn forward, the left page (or ← key) to go back. For printing, use the 🖨️ print-ready PDF button below.")
  
-    # Standalone copy of the book: a single .html file that opens in any browser, offline.
+    # Standalone copy of the album: a single .html file that opens in any browser, offline.
 
     standalone = book_doc.replace(
 
@@ -185,11 +191,11 @@ def main() -> None:
 
     middle.download_button(
 
-        "📖 Download the book (open in any browser)",
+        "📖 Download the album (open in any browser)",
 
         data=standalone,
 
-        file_name="book-for-stal.html",
+        file_name="album-for-stal.html",
 
         mime="text/html",
 
@@ -197,17 +203,15 @@ def main() -> None:
 
     )
 
-    print_pdf = make_print_pdf(book_doc)
-
-    if print_pdf:
+    try:
 
         middle.download_button(
 
             "🖨️ Download print-ready PDF",
 
-            data=print_pdf,
+            data=make_print_pdf(book_doc),
 
-            file_name="book-for-stal.pdf",
+            file_name="album-for-stal.pdf",
 
             mime="application/pdf",
 
@@ -215,13 +219,15 @@ def main() -> None:
 
         )
 
-    else:
+    except RuntimeError as error:
 
-        st.caption(
+        st.warning(
 
-            "Print-ready PDF unavailable: run `pip install playwright` and `playwright install chromium`, "
+            f"The print-ready PDF could not be made: {error}\n\n"
 
-            "or open the downloaded book (.html) and use its 📄 Save as PDF button with Background graphics ticked."
+            "Fix: run `pip install playwright` then `playwright install chromium`, and reload this page. "
+
+            "Meanwhile you can use the 📄 Save as PDF button under the album."
 
         )
 

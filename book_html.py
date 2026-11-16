@@ -21,6 +21,35 @@ CARD_ACCENTS = ["#9B5664", "#A75D68", "#7D4852", "#B06E75", "#80505A", "#986872"
 CARD_EMOJIS = ["🌟", "💖", "🌈", "🎈", "✨", "🌸", "🎊", "🍀"]
  
  
+def _leather_uri(seed: int, color: str) -> str:
+
+    """Return a data-URI SVG of padded leatherette (fine pebble grain plus soft dents)."""
+
+    svg = (
+
+        "<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800' viewBox='0 0 600 800' "
+
+        "preserveAspectRatio='none'>"
+
+        "<filter id='f' x='0' y='0' width='100%' height='100%'>"
+
+        f"<feTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3' seed='{seed}' result='g'/>"
+
+        f"<feTurbulence type='fractalNoise' baseFrequency='0.006 0.008' numOctaves='3' seed='{seed + 3}' result='d'/>"
+
+        "<feComposite in='g' in2='d' operator='arithmetic' k1='0' k2='0.55' k3='0.45' k4='0' result='n'/>"
+
+        f"<feDiffuseLighting in='n' lighting-color='{color}' surfaceScale='2.4' diffuseConstant='1.25'>"
+
+        "<feDistantLight azimuth='50' elevation='62'/></feDiffuseLighting></filter>"
+
+        "<rect width='600' height='800' filter='url(#f)'/></svg>"
+
+    )
+
+    return "data:image/svg+xml," + quote(svg, safe="/:=,;'()")
+ 
+ 
 def _crumple_uri(seed: int, color: str, surface_scale: float, azimuth: int) -> str:
 
     """Return a data-URI SVG of crumpled paper (turbulence ridges lit from one side).
@@ -153,7 +182,7 @@ def _photo_page(uris: list[str], page_no: int, seed: int) -> str:
 
         f"<div class='pol' style='transform:rotate({rotations[(seed + j) % len(rotations)]}deg)'>"
 
-        f"<div class='tape sm'></div><div class='ph'><img src='{uri}' alt=''></div></div>"
+        f"<div class='ph'><img src='{uri}' alt=''></div><i class='corners'></i></div>"
 
         for j, uri in enumerate(uris)
 
@@ -191,7 +220,7 @@ def _intro_page(config: dict, base_dir: Path, page_no: int) -> str:
 
     if photo and (base_dir / photo).exists():
 
-        photo_html = f"<div class='photo'><img src='{_photo_uri(base_dir / photo)}' alt=''></div>"
+        photo_html = f"<div class='photo'><img src='{_photo_uri(base_dir / photo)}' alt=''><i class='corners'></i></div>"
 
     return (
 
@@ -221,6 +250,8 @@ def _cover(config: dict) -> str:
 
         "<div class='in coverin'>"
 
+        "<div class='ckicker'>📷 PHOTO ALBUM</div>"
+
         f"<div class='fit ctitle'>{html.escape(config['title'])}</div>"
 
         f"<div class='csub'>{html.escape(config['subtitle'])}</div></div>"
@@ -230,7 +261,7 @@ def _cover(config: dict) -> str:
  
 def _back_cover() -> str:
 
-    return "<div class='in coverin'><div class='csub'>💖 Mahal Ka Namin, Stal 💖</div></div>"
+    return "<div class='in coverin'><div class='csub'>📷 made with love, by the team 💖</div></div>"
  
  
 def build_book_html(config: dict, messages: list, base_dir: Path, photos_dir: Path | None = None) -> str:
@@ -325,15 +356,15 @@ def build_book_html(config: dict, messages: list, base_dir: Path, photos_dir: Pa
 
         sheets.append(f"<div class='sheet'>{''.join(sheet_faces)}</div>")
  
-    paper = "#FFF1EE"
+    paper = "#FFF5E4"
 
-    cover = "#E6BDC3"
+    cover = "#B9606E"
 
     crumple_css = "".join(
 
         f".p{k}{{background-image:url(\"{_crumple_uri(11 + 7 * k, paper, 6.5 + k % 2, 40 + 55 * k)}\")}}"
 
-        f".p{k}.cover{{background-image:url(\"{_crumple_uri(31 + 5 * k, cover, 8, 45 + 40 * k)}\")}}"
+        f".p{k}.cover{{background-image:url(\"{_leather_uri(31 + 5 * k, cover)}\")}}"
 
         for k in range(4)
 
@@ -417,9 +448,47 @@ html:fullscreen #wrap,html:-webkit-full-screen #wrap{border-radius:0}
 
   linear-gradient(152deg,transparent 66%,rgba(90,45,55,.14) 67%,rgba(255,255,255,.30) 68%,transparent 70%)}
 
-.face.cover{border:calc(var(--pw)*.025) double #B4777E}
+.face.cover{border-radius:4px 12px 12px 4px}
 
-.face.cover::before{background:linear-gradient(to right,rgba(70,30,40,.30),transparent 10%)}
+.face.cover.leftpage{border-radius:12px 4px 4px 12px}
+
+.face.cover.rightpage::before{background:
+
+  linear-gradient(to right,transparent 6.4%,rgba(0,0,0,.38) 7%,rgba(255,255,255,.18) 7.7%,transparent 8.4%),
+
+  linear-gradient(to right,rgba(0,0,0,.40),rgba(0,0,0,.05) 7%,transparent 9%),
+
+  radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.20),transparent 55%),
+
+  linear-gradient(to left,rgba(0,0,0,.25),transparent 8%)}
+
+.face.cover.leftpage::before{background:
+
+  linear-gradient(to left,transparent 6.4%,rgba(0,0,0,.38) 7%,rgba(255,255,255,.18) 7.7%,transparent 8.4%),
+
+  linear-gradient(to left,rgba(0,0,0,.40),rgba(0,0,0,.05) 7%,transparent 9%),
+
+  radial-gradient(ellipse at 70% 20%,rgba(255,255,255,.20),transparent 55%),
+
+  linear-gradient(to right,rgba(0,0,0,.25),transparent 8%)}
+
+.face.cover::after{content:"";position:absolute;z-index:0;top:4.5%;bottom:4.5%;left:12%;right:6%;
+
+  border:2px dashed rgba(246,223,166,.75);border-radius:8px;pointer-events:none}
+
+.face.cover.leftpage::after{left:6%;right:12%}
+
+/* punched binder holes along the spine of every paper page */
+
+.face.page::after{content:"";position:absolute;z-index:0;top:7%;bottom:7%;width:calc(var(--pw)*.04);
+
+  background:radial-gradient(circle calc(var(--pw)*.017) at 50% 50%,rgba(50,25,30,.78) 0 58%,
+
+    rgba(255,255,255,.45) 66%,transparent 72%) 0 0/100% 12.5% repeat-y;pointer-events:none}
+
+.face.page.rightpage::after{left:calc(var(--pw)*.035)}
+
+.face.page.leftpage::after{right:calc(var(--pw)*.035)}
 
 __CRUMPLE__
 
@@ -451,11 +520,11 @@ __CRUMPLE__
 
   box-shadow:0 2px 3px rgba(104,65,72,.15);z-index:3}
 
-.photo{flex:0 0 46%;margin-top:calc(var(--pw)*.04);padding:calc(var(--pw)*.02);background:#fff;
+.photo{position:relative;flex:0 0 46%;margin-top:calc(var(--pw)*.04);transform:rotate(-1.2deg);min-height:0}
 
-  box-shadow:0 3px 8px rgba(70,35,45,.3);transform:rotate(-1.2deg);min-height:0}
+.photo img{width:100%;height:100%;object-fit:cover;display:block;border:calc(var(--pw)*.007) solid #fff;
 
-.photo img{width:100%;height:100%;object-fit:cover;display:block}
+  box-shadow:0 3px 9px rgba(50,25,32,.38)}
 
 .pgrid{flex:1 1 0;min-height:0;display:grid;gap:calc(var(--pw)*.045)}
 
@@ -467,9 +536,27 @@ __CRUMPLE__
 
 .pgrid.n3 .pol:first-child{grid-column:1/3}
 
-.pol{position:relative;min-width:0;min-height:0;background:#fff;box-shadow:0 3px 9px rgba(70,35,45,.32)}
+.pol{position:relative;min-width:0;min-height:0}
 
-.pol .ph{position:absolute;left:3%;right:3%;top:3%;bottom:9%;overflow:hidden;background:#eee}
+.pol .ph{position:absolute;inset:4%;overflow:hidden;background:#eee;border:calc(var(--pw)*.007) solid #fff;
+
+  box-shadow:0 3px 9px rgba(50,25,32,.38)}
+
+.pol .corners{inset:4%}
+
+.corners{position:absolute;inset:0;pointer-events:none;z-index:2;--c:#4A2B33;--s:calc(var(--pw)*.07);
+
+  background:
+
+   linear-gradient(135deg,var(--c) 50%,transparent 50%) left top/var(--s) var(--s) no-repeat,
+
+   linear-gradient(225deg,var(--c) 50%,transparent 50%) right top/var(--s) var(--s) no-repeat,
+
+   linear-gradient(45deg,var(--c) 50%,transparent 50%) left bottom/var(--s) var(--s) no-repeat,
+
+   linear-gradient(315deg,var(--c) 50%,transparent 50%) right bottom/var(--s) var(--s) no-repeat;
+
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
 
 .pol img{width:100%;height:100%;object-fit:cover;display:block}
 
@@ -481,11 +568,23 @@ __CRUMPLE__
 
 .coverin{align-items:center;justify-content:center;text-align:center}
 
-.ctitle{flex:none!important;height:auto;color:#75434D;font-style:normal;font-weight:700;
+.coverin{padding-left:calc(var(--pw)*.17);padding-right:calc(var(--pw)*.12)}
 
-  font-size:calc(var(--pw)*.095);line-height:1.2;overflow:visible!important}
+.face.leftpage .coverin{padding-left:calc(var(--pw)*.12);padding-right:calc(var(--pw)*.17)}
 
-.csub{margin-top:calc(var(--pw)*.05);color:#89515B;font-size:calc(var(--pw)*.05);text-align:center}
+.ckicker{letter-spacing:.28em;color:#F6DFA6;font-size:calc(var(--pw)*.034);font-weight:700;
+
+  margin-bottom:calc(var(--pw)*.05);text-shadow:0 1px 0 rgba(0,0,0,.35)}
+
+.ctitle{flex:none!important;height:auto;color:#F6DFA6;font-style:normal;font-weight:700;
+
+  font-size:calc(var(--pw)*.082);line-height:1.2;overflow:visible!important;
+
+  text-shadow:0 1px 0 rgba(255,255,255,.25),0 -1px 1px rgba(0,0,0,.45)}
+
+.csub{margin-top:calc(var(--pw)*.05);color:#F7DDE0;font-size:calc(var(--pw)*.048);text-align:center;
+
+  text-shadow:0 1px 1px rgba(0,0,0,.35)}
 
 .bar{flex:none;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px;
 
