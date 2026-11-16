@@ -23,6 +23,8 @@ CONFIG_PATH = BASE_DIR / "config.json"
 MESSAGES_PATH = BASE_DIR / "messages.json"
 
 AUDIO_PATH = BASE_DIR / "salamat.mp3"
+
+PHOTOS_DIR = BASE_DIR / "sup_photos"
  
 PAGE_CSS = """
 <style>
@@ -92,6 +94,26 @@ def load_json(path: Path) -> Any:
         return json.load(file)
  
  
+@st.cache_data(show_spinner="Preparing the book…")
+
+def make_book(config: dict, messages: list, photos_stamp: tuple) -> str:
+
+    """Build the book HTML once (resizing photos is slow). ``photos_stamp`` refreshes it when photos change."""
+
+    return build_book_html(config, messages, BASE_DIR, PHOTOS_DIR)
+ 
+ 
+def photos_stamp() -> tuple:
+
+    """Names and modification times of the photos, used as a cache key."""
+
+    if not PHOTOS_DIR.is_dir():
+
+        return ()
+
+    return tuple((f.name, f.stat().st_mtime) for f in sorted(PHOTOS_DIR.iterdir()) if f.is_file())
+ 
+ 
 @st.cache_data(show_spinner="Preparing the print-ready PDF…")
 
 def make_print_pdf(book_doc: str) -> bytes | None:
@@ -139,11 +161,17 @@ def main() -> None:
  
     # The whole book (cover, pages, flipping, full screen) lives in one HTML component.
 
-    book_doc = build_book_html(config, messages, BASE_DIR)
+    book_doc = make_book(config, messages, photos_stamp())
 
-    components.html(book_doc, height=800, scrolling=False)
+    # Browser printing from inside Streamlit's frame is unreliable, so hide that button on the site;
 
-    st.caption("Click the right page (or → key) to turn forward, the left page (or ← key) to go back. For a PDF, use the 📄 Save as PDF button under the book and tick \"Background graphics\".")
+    # use the print-ready PDF button below instead (the downloaded .html book keeps its own button).
+
+    on_site = book_doc.replace("</head>", "<style>#pdf{display:none}</style></head>", 1)
+
+    components.html(on_site, height=800, scrolling=False)
+
+    st.caption("Click the right page (or → key) to turn forward, the left page (or ← key) to go back. For printing, use the 🖨️ print-ready PDF button below.")
  
     # Standalone copy of the book: a single .html file that opens in any browser, offline.
 
@@ -193,7 +221,7 @@ def main() -> None:
 
             "Print-ready PDF unavailable: run `pip install playwright` and `playwright install chromium`, "
 
-            "or use the 📄 Save as PDF button under the book."
+            "or open the downloaded book (.html) and use its 📄 Save as PDF button with Background graphics ticked."
 
         )
 

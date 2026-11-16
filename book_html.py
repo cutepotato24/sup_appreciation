@@ -4,7 +4,13 @@ import base64
 
 import html
 
+import io
+
 import mimetypes
+
+import re
+
+from functools import lru_cache
 
 from pathlib import Path
 
@@ -79,6 +85,83 @@ def _photo_uri(path: Path) -> str:
     return f"data:{mime};base64," + base64.b64encode(path.read_bytes()).decode("ascii")
  
  
+PHOTO_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif"}
+
+MAX_PHOTOS_PER_PAGE = 3
+ 
+ 
+@lru_cache(maxsize=256)
+
+def _small_photo_uri(path: str, mtime: float) -> str | None:
+
+    """Shrink a photo (max 1000 px, JPEG) and return it as a data URI; None if it can't be read.
+ 
+    ``mtime`` is only part of the cache key, so edited files are re-read.
+
+    """
+
+    try:
+
+        from PIL import Image, ImageOps
+ 
+        with Image.open(path) as img:
+
+            img = ImageOps.exif_transpose(img).convert("RGB")
+
+            img.thumbnail((1000, 1000))
+
+            buffer = io.BytesIO()
+
+            img.save(buffer, "JPEG", quality=82, optimize=True)
+
+        return "data:image/jpeg;base64," + base64.b64encode(buffer.getvalue()).decode("ascii")
+
+    except Exception:  # unreadable or unsupported file: skip it instead of breaking the book
+
+        return None
+ 
+ 
+def load_photos(folder: Path) -> list[str]:
+
+    """Return all photos of a folder as small data URIs, in natural filename order."""
+
+    if not folder.is_dir():
+
+        return []
+
+    files = [f for f in folder.iterdir() if f.suffix.lower() in PHOTO_EXTS]
+
+    files.sort(key=lambda f: [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", f.name)])
+
+    uris = [_small_photo_uri(str(f), f.stat().st_mtime) for f in files]
+
+    return [u for u in uris if u]
+ 
+ 
+def split_evenly(total: int, parts: int) -> list[int]:
+
+    """Split ``total`` into ``parts`` counts that differ by at most one, spread evenly."""
+
+    return [round((i + 1) * total / parts) - round(i * total / parts) for i in range(parts)]
+ 
+ 
+def _photo_page(uris: list[str], page_no: int, seed: int) -> str:
+
+    rotations = [-2.2, 1.8, -1.2, 2.4, -1.8, 1.4]
+
+    items = "".join(
+
+        f"<div class='pol' style='transform:rotate({rotations[(seed + j) % len(rotations)]}deg)'>"
+
+        f"<div class='tape sm'></div><div class='ph'><img src='{uri}' alt=''></div></div>"
+
+        for j, uri in enumerate(uris)
+
+    )
+
+    return f"<div class='in'><div class='pgrid n{len(uris)}'>{items}</div><div class='pno'>Page {page_no}</div></div>"
+ 
+ 
 def _message_page(index: int, name: str, message: str, page_no: int) -> str:
 
     accent = CARD_ACCENTS[index % len(CARD_ACCENTS)]
@@ -150,7 +233,7 @@ def _back_cover() -> str:
     return "<div class='in coverin'><div class='csub'>💖 with love, from the team 💖</div></div>"
  
  
-def build_book_html(config: dict, messages: list, base_dir: Path) -> str:
+def build_book_html(config: dict, messages: list, base_dir: Path, photos_dir: Path | None = None) -> str:
 
     """Build the complete HTML document for the flip book.
  
@@ -169,6 +252,10 @@ def build_book_html(config: dict, messages: list, base_dir: Path) -> str:
     base_dir : Path
 
         Folder used to resolve the photo path.
+
+    photos_dir : Path | None
+
+        Folder of photos to spread evenly after the messages (message, 2-3 photos, message, ...).
  
     Returns
 
@@ -188,9 +275,31 @@ def build_book_html(config: dict, messages: list, base_dir: Path) -> str:
 
     faces.append(("page", _intro_page(config, base_dir, 1)))
 
+    photos = load_photos(photos_dir) if photos_dir else []
+
+    per_message = split_evenly(len(photos), len(messages)) if messages else []
+
+    cursor = 0
+
     for i, item in enumerate(messages):
 
         faces.append(("page", _message_page(i, item["name"], item["message"], len(faces))))
+
+        count = per_message[i] if per_message else 0
+
+        group, cursor = photos[cursor : cursor + count], cursor + count
+
+        if group:
+
+            pages = -(-len(group) // MAX_PHOTOS_PER_PAGE)  # ceil: at most 3 photos per page
+
+            start = 0
+
+            for size in split_evenly(len(group), pages):
+
+                faces.append(("page", _photo_page(group[start : start + size], len(faces), i + start)))
+
+                start += size
 
     faces.append(("page", _closing_page(config, len(faces))))
 
@@ -347,6 +456,24 @@ __CRUMPLE__
   box-shadow:0 3px 8px rgba(70,35,45,.3);transform:rotate(-1.2deg);min-height:0}
 
 .photo img{width:100%;height:100%;object-fit:cover;display:block}
+
+.pgrid{flex:1 1 0;min-height:0;display:grid;gap:calc(var(--pw)*.045)}
+
+.pgrid.n1{grid-template-columns:1fr;grid-template-rows:1fr}
+
+.pgrid.n2{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+
+.pgrid.n3{grid-template-columns:1fr 1fr;grid-template-rows:1.15fr 1fr}
+
+.pgrid.n3 .pol:first-child{grid-column:1/3}
+
+.pol{position:relative;min-width:0;min-height:0;background:#fff;box-shadow:0 3px 9px rgba(70,35,45,.32)}
+
+.pol .ph{position:absolute;left:3%;right:3%;top:3%;bottom:9%;overflow:hidden;background:#eee}
+
+.pol img{width:100%;height:100%;object-fit:cover;display:block}
+
+.tape.sm{top:-3%;left:calc(50% - var(--pw)*.07);width:calc(var(--pw)*.14);height:calc(var(--pw)*.04)}
 
 .closing{font-style:normal;font-weight:700;color:#89515B;display:flex;align-items:center;
 
