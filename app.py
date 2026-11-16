@@ -23,6 +23,12 @@ PAGE_CSS = """
 .stApp {
     background: #FFF1F2;
     color: #4C1D25;
+    font-family: "URW Chancery L", "Brush Script MT", "Segoe Script", cursive;
+}
+.block-container {
+    max-width: 100%;
+    padding-left: 2rem;
+    padding-right: 2rem;
 }
 .hero-title {
     text-align: center;
@@ -30,7 +36,6 @@ PAGE_CSS = """
     font-weight: 800;
     margin: 0.5rem 0 0.2rem 0;
     color: #7F1D35;
-    font-family: Georgia, "Times New Roman", serif;
 }
 .hero-subtitle {
     text-align: center;
@@ -54,7 +59,6 @@ PAGE_CSS = """
     font-weight: 700;
     color: #9F1239;
     margin: 1.5rem 0 1rem 0;
-    font-family: Georgia, "Times New Roman", serif;
 }
 .msg-card {
     padding: 1.3rem 1.5rem;
@@ -73,7 +77,6 @@ PAGE_CSS = """
     font-weight: 700;
     color: #9F3048;
     margin: 1.5rem 0;
-    font-family: Georgia, "Times New Roman", serif;
 }
 div.stButton > button {
     border-radius: 4px;
@@ -90,7 +93,7 @@ div.stButton > button:hover { color: #5B1F2A; border-color: #881337; transform: 
 </style>
 """
 
-st.set_page_config(page_title="A Little Surprise", page_icon="🎉", layout="centered")
+st.set_page_config(page_title="A Little Surprise", page_icon="🎉", layout="wide")
 
 
 def load_json(path: Path) -> Any:
