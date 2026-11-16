@@ -2,6 +2,8 @@
  
 import html
 
+import importlib.util
+
 import json
 
 from pathlib import Path
@@ -203,33 +205,41 @@ def main() -> None:
 
     )
 
-    try:
+    # The server-side PDF needs Playwright + Chromium. Many hosts (e.g. Streamlit Cloud) don't have them,
 
-        middle.download_button(
+    # so check first and never let a PDF problem take the whole page down.
 
-            "🖨️ Download print-ready PDF",
+    if importlib.util.find_spec("playwright") is None:
 
-            data=make_print_pdf(book_doc),
+        st.caption("Print-ready PDF isn't available on this server (Playwright is not installed).")
 
-            file_name="album-for-stal.pdf",
+    else:
 
-            mime="application/pdf",
+        try:
 
-            use_container_width=True,
+            middle.download_button(
 
-        )
+                "🖨️ Download print-ready PDF",
 
-    except RuntimeError as error:
+                data=make_print_pdf(book_doc),
 
-        st.warning(
+                file_name="album-for-stal.pdf",
 
-            f"The print-ready PDF could not be made: {error}\n\n"
+                mime="application/pdf",
 
-            "Fix: run `pip install playwright` then `playwright install chromium`, and reload this page. "
+                use_container_width=True,
 
-            "Meanwhile you can use the 📄 Save as PDF button under the album."
+            )
 
-        )
+        except Exception as error:  # noqa: BLE001 - show the reason instead of crashing the page
+
+            st.warning(
+
+                f"The print-ready PDF could not be made: {error}\n\n"
+
+                "Run `playwright install chromium` on the server, then reload this page."
+
+            )
 
     if middle.button("🎈 More balloons!", use_container_width=True):
 
